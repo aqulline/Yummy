@@ -1,0 +1,330 @@
+#:import sm kivy.uix.screenmanager
+ScreenManager:
+    id:manager
+    transition:sm.FadeTransition(duration=.2)
+    MDScreen:
+        id: test
+        name:"one"
+        md_bg_color:60/255, 66/255, 75/255, 1
+        FloatLayout:
+            MDIconButton:
+                icon:"account"
+                pos_hint: {"center_x": .9, "center_y": .9}
+                on_release:
+                    app.admin_memory()
+            MDIconButton:
+                icon:"plus"
+                pos_hint: {"center_x": .5, "center_y": .7}
+                on_release:
+                    app.add_follower()
+                    app.load_follower()
+            MDLabel:
+                text:"FOLLOWERS:" + " " + app.follower
+                halign:"center"
+                pos_hint: {"center_x": .7, "center_y": .7}
+        MDCard:
+            id:cart
+            #md_bg_color: self.theme_cls.primary_color
+            size_hint: None, None
+            border_radius: 20
+            radius: [15]
+            border_radius: "12dp"
+            size: 250, "99dp"
+            pos_hint: {"center_x": .5, "center_y": .9}
+            MDLabel:
+                text:"yummy"
+                halign:"center"
+                height: self.texture_size[1]
+        MDCard:
+            md_bg_color: self.theme_cls.primary_color
+            size_hint: None, None
+            border_radius: 20
+            radius: [15]
+            border_radius: "12dp"
+            size: 120, "150dp"
+            pos_hint: {"center_x": .3, "center_y": .5}
+            elevation:10
+            on_release:
+                manager.current = "mihogo"
+                app.count = app.count + 1
+            FloatLayout:
+                MDIconButton:
+                    icon: "bw.png"
+                    pos_hint: {"center_x": .5, "center_y": .75}
+                MDLabel:
+                    text:"mihogo"
+                    halign:"center"
+                    pos_hint: {"center_x": .5, "center_y": .4}
+        MDCard:
+            id:car
+            md_bg_color: self.theme_cls.primary_color
+            size_hint: None, None
+            border_radius: 20
+            radius: [15]
+            border_radius: "12dp"
+            size: 120, "150dp"
+            pos_hint: {"center_x": .7, "center_y": .5}
+            elevation:10
+            on_release:
+                manager.current = "juice"
+                app.count = app.count + 1
+                app.play()
+            FloatLayout:
+                MDIconButton:
+                    icon: "juice.png"
+                    pos_hint: {"center_x": .5, "center_y": .75}
+                MDLabel:
+                    text:"juice"
+                    halign:"center"
+                    pos_hint: {"center_x": .5, "center_y": .4}
+    MDScreen:
+        name:"mihogo"
+        md_bg_color:60/255, 66/255, 75/255, 1
+        FloatLayout:
+            MDCard
+                id:mihogo_carry
+                size_hint: None, None
+                border_radius: 20
+                radius: [15]
+                border_radius: "12dp"
+                size: app.size_x - 100, "180dp"
+                pos_hint: {"center_x": .5, "center_y": .8}
+                FitImage:
+                    source:"colorm.png"
+            MDCard:
+                id:price_miho
+                size_hint: None, None
+                border_radius: 20
+                radius: [15]
+                border_radius: "12dp"
+                size: 145, "80dp"
+                pos_hint: {"center_x": .5, "center_y": .55}
+                MDLabel:
+                    text:"Price:"
+                    halign:"center"
+                    pos_hint: {"center_x": .35, "center_y": .5}
+                MDLabel:
+                    text:"200/tsh"
+                    halign:"center"
+                    pos_hint: {"center_x": .4, "center_y": .5}
+                    elevation: 3
+            NumberOnly:
+                id:mingap
+                size_hint: .2, None
+                pos_hint: {"center_x": .5, "center_y": .4}
+                height: "30dp"
+                hint_text:"idadi"
+                color_mode:"accent"
+                theme_text_color: "ContrastParentBackground"
+                text_color: 0, 0, 0, 0
+                on_text:
+                    app.callculator(mingap.text)
+            MDLabel:
+                text:"total price" +" "+ app.calculator + "/tsh"
+                halign:"center"
+                pos_hint: {'center_x': .5, 'center_y': .35}
+            MDDropDownItem:
+                id:drop_item_one
+                pos_hint: {'center_x': .5, 'center_y': .25}
+                text: app.menu_text
+                on_release:
+                    app.callback(drop_item_one)
+            MDRoundFlatButton:
+                text: "Order"
+                pos_hint: {'center_x': .5, 'center_y': .13}
+                on_release:
+                    app.product_name = "mihogo"
+                    app.quantity = mingap.text
+                    app.phone_number_dialog()
+    MDScreen:
+        name:"juice"
+        md_bg_color:60/255, 66/255, 75/255, 1
+        FloatLayout:
+            MDCard
+                id:juice_carry
+                size_hint: None, None
+                border_radius: 20
+                radius: [15]
+                elevation: 9
+                border_radius: "12dp"
+                size: app.size_x - 100, "180dp"
+                pos_hint: {"center_x": .5, "center_y": .8}
+                Image:
+                    source:"juice.png"
+            MDCard:
+                id:price_juice
+                size_hint: None, None
+                border_radius: 20
+                radius: [15]
+                border_radius: "12dp"
+                size: 145, "80dp"
+                pos_hint: {"center_x": .5, "center_y": .55}
+                MDLabel:
+                    text:"Price:"
+                    halign:"center"
+                    pos_hint: {"center_x": .35, "center_y": .5}
+                MDLabel:
+                    text:"500/tsh"
+                    halign:"center"
+                    pos_hint: {"center_x": .4, "center_y": .5}
+                    elevation: 3
+            NumberOnly:
+                id:mingap_juice
+                size_hint: .2, None
+                pos_hint: {"center_x": .5, "center_y": .4}
+                height: "30dp"
+                hint_text:"idadi"
+                color_mode:"accent"
+                theme_text_color: "ContrastParentBackground"
+                text_color: 0, 0, 0, 0
+                on_text:
+                    app.callculator2(mingap_juice.text)
+            MDLabel:
+                text:"total price" +" "+ app.calculator2 + "/tsh"
+                halign:"center"
+                pos_hint: {'center_x': .5, 'center_y': .35}
+            MDDropDownItem:
+                id:drop_item_two
+                pos_hint: {'center_x': .5, 'center_y': .25}
+                text: 'Your Location'
+                on_release:
+                    app.callback(drop_item_two)
+            MDRoundFlatButton:
+                text: "Order"
+                pos_hint: {'center_x': .5, 'center_y': .13}
+                on_release:
+                    app.product_name = "juice"
+                    app.quantity = mingap_juice.text
+                    app.phone_number_dialog()
+
+    MDScreen:
+        name:"login"
+        md_bg_color:60/255, 66/255, 75/255, 1
+        FloatLayout:
+            orientation:"vertical"
+            NumberOnlyRound:
+                id:user_login_phone
+                pos_hint:{"center_x":.5, "center_y":.6}
+                size_hint: .8,.054
+                hint_text:"Phone:"
+                line_color :app.theme_cls.primary_color
+                normal_color: 0.5,0.5,0.5,0.5
+                icon_left:"phone"
+                color_active:1, 1, 1, 1
+                icon_left_color:app.theme_cls.primary_color
+            MDTextFieldRound:
+                id:user_login_password
+                pos_hint:{"center_x":.5, "center_y":.48}
+                size_hint: .8,.054
+                hint_text:"password:"
+                password:True
+                line_color:app.theme_cls.primary_color
+                normal_color: 0.5,0.5,0.5,0.5
+                icon_left:"lock"
+                icon_left_color:app.theme_cls.primary_color
+                color_active:1, 1, 1, 1
+            MDSpinner:
+                size_hint: None, None
+                size: dp(46), dp(46)
+                pos_hint: {'center_x': .5, 'center_y': .5}
+                active: app.spin_active
+            MDFillRoundFlatButton:
+                text:"Login"
+                size_hint: .7, .07
+                pos_hint:{"center_x":.5, "center_y":.38}
+                text_color:1, 1, 1, 1
+                on_release:
+                    app.validate_user(user_login_phone.text, user_login_password.text)
+    MDScreen:
+        name:"admin_main"
+        md_bg_color:60/255, 66/255, 75/255, 1
+        on_enter:
+            app.add_order()
+        MDBoxLayout:
+            orientation:"vertical"
+            MDCard:
+                id:price_juice
+                size_hint: None, None
+                border_radius: 20
+                radius: [15]
+                border_radius: "12dp"
+                size: 145, "80dp"
+                pos_hint: {"center_x": .5, "center_y": .55}
+                on_release:
+                    app.refresh()
+                MDLabel:
+                    text:"O r d e r s"
+                    halign:"center"
+                    pos_hint: {"center_x": .35, "center_y": .5}
+            ScrollView:
+                id: scroll
+                MDGridLayout:
+                    cols: 1
+                    adaptive_height: True
+                    padding: dp(4), dp(4)
+                    spacing: dp(7)
+                    id:food_cat
+
+<phone_dialog>
+    NumberOnly:
+        id:phone
+        hint_text:"Phone number:"
+        size_hint: .8, None
+        pos_hint_x: .2
+        color_mode:"accent"
+        text_color: 0, 0, 0, 0
+        on_text:
+            app.phone_number = phone.text
+
+<last_dialog>
+    orientation:"vertical"
+    spacing: "12dp"
+    size_hint_y: None
+    height: "120dp"
+    MDLabel:
+        text:"[color=FF7646]Phone number:[/color]"+" "+app.phone_number
+        theme_text_color:"Custom"
+        text_color:	121/255, 174/255, 141/255, 1
+        markup: True
+    MDLabel:
+        text:"[color=FF7646]Location:[/color]"+" "+app.location
+        theme_text_color:"Custom"
+        text_color:	121/255, 174/255, 141/255, 1
+        markup: True
+    MDLabel:
+        text:"[color=FF7646]Product name:[/color]"+" "+app.product_name
+        theme_text_color:"Custom"
+        text_color:	121/255, 174/255, 141/255, 1
+        markup: True
+    MDLabel:
+        text:"[color=FF7646]Quantity:[/color]"+" "+app.quantity
+        theme_text_color:"Custom"
+        text_color:	121/255, 174/255, 141/255, 1
+        markup: True
+    MDLabel:
+        text:"[color=FF7646]Total amount:[/color]"+" "+str(app.total_amount)
+        theme_text_color:"Custom"
+        text_color:	121/255, 174/255, 141/255, 1
+        markup: True
+<category>:
+    orientation: "vertical"
+    padding: "8dp"
+    border_radius: 20
+    radius: [15]
+    size_hint: None, None
+    size: app.size_x - 30, "150dp"
+    focus_behavior: False
+    ripple_behavior: True
+    elevation: "6"
+
+
+<Labels>:
+    text: "Title"
+    theme_text_color: "Custom"
+    text_color: 230/255, 150/255, 11/255
+    size_hint_y: None
+    height: self.texture_size[1]
+    font_style:"Body1"
+    #halign:"center"
+
+
