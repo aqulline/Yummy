@@ -19,8 +19,8 @@ class Upload_image:
         return str(datetime.datetime.now()).split(" ")[0]
 
     def upload_data(self, phone, location, quantity, amount, product_name):
-        from connection_status import connect
-        if connect():
+        # from connection_status import connect
+        if True:
             from test import number_app
             from firebase_admin import credentials, initialize_app, db
             cred = credentials.Certificate("farmzon-abdcb-c4c57249e43b.json")
@@ -50,8 +50,8 @@ class Upload_image:
         return True
 
     def Signing_in_admin(self, phone, password):
-        from connection_status import connect
-        if connect():
+        # from connection_status import connect
+        if True:
             from test import number_app
             from firebase_admin import credentials, initialize_app, db
             cred = credentials.Certificate("farmzon-abdcb-c4c57249e43b.json")
@@ -82,3 +82,4 @@ class Upload_image:
             else:
                 print("not ok")
                 return False
+
