@@ -113,6 +113,7 @@ class MainApp(MDApp):
     location = StringProperty("")
     quantity = StringProperty("")
     total_amount = NumericProperty(0)
+    order_number = StringProperty("0")
 
     # MATH
     calculator = StringProperty("0")
@@ -152,7 +153,7 @@ class MainApp(MDApp):
         print(message.data)
         print(utils.platform)
         kwargs = {'title': 'New follower', 'message': 'you have new follower'}
-        if message.data == "1":
+        if True:
             print("hello")
             response = self.pn_client.publish(
                 interests=["hello"],
@@ -171,11 +172,11 @@ class MainApp(MDApp):
                 },
             )
 
-            return notification.notify(title='New follower', message='Fuck you')
+            return notification.notify(title='New order', message='you have new order!')
 
     def notifi(self):
         try:
-            my_stream = db.reference("Users").child('0628834063').child('Followed').listen(self.stream_handler)
+            my_stream = db.reference("Yummy").child("Orders").listen(self.stream_handler)
         except:
             pass
 
@@ -205,22 +206,21 @@ class MainApp(MDApp):
             self.admin_phone = Lines[0].strip()
             self.admin_password = Lines[1].strip()
             self.admin_name = Lines2[0]
-            self.Signing_in_admin_function(self.admin_phone, self.admin_password)
+            self.Signing_in_admin(self.admin_phone, self.admin_password)
             sm.current = "admin_main"
             self.count += 1
+            thread = threading.Thread(target=self.notifi)
+            thread.start()
+            kamba = threading.Thread(target=self.listen_db)
+            kamba.start()
 
     def on_start(self):
         drop_one = self.root.ids.drop_item_one
         drop_two = self.root.ids.drop_item_two
         EventLoop.window.bind(on_keyboard=self.hook_keyboard)
-        # thread = threading.Thread(target=self.notifi)
-        # thread.start()
-        kamba = threading.Thread(target=self.listen_db)
-        kamba.start()
         notification.notify(title="hi", message="me")
         self.menu_fun(drop_one)
         self.menu_fun(drop_two)
-        self.load_follower()
 
         # cards background colors
 
@@ -238,6 +238,9 @@ class MainApp(MDApp):
 
         logo = self.root.ids.cart
         logo.md_bg_color = 245 / 255, 0 / 255, 72 / 255, 1
+
+        order = self.root.ids.order
+        order.md_bg_color = 245 / 255, 0 / 255, 72 / 255, 1
 
     def menu_fun(self, identity):
         vimbweta = [
@@ -368,6 +371,7 @@ class MainApp(MDApp):
         thread = threading.Thread(target=DB.upload_data,
                                   args=(DB(), phone, self.location, quantity, self.total_amount, product))
         thread.start()
+        toast("Ordered successfully!")
 
     def hook_keyboard(self, window, key, *largs):
         sm = self.root
@@ -384,23 +388,6 @@ class MainApp(MDApp):
             # Window.on_close()
             self.show_alert_dialog()
             return True
-
-    count = 0
-    follower = StringProperty("0")
-    follower_initial = StringProperty("0")
-
-    def load_follower(self):
-        with open("follower.txt", "r") as aqulline:
-            line = aqulline.readlines()
-            self.follower = line[0]
-            self.follower_initial = line[0]
-            print("k" + self.follower)
-
-    def add_follower(self):
-        with open("follower.txt", "w") as file:
-            self.count = 1 + int(self.follower_initial)
-            file.write(str(self.count))
-            file.close()
 
     def menu_callback(self, menu):
         self.menu_text = menu.text
@@ -440,10 +427,9 @@ class MainApp(MDApp):
         Clock.schedule_once(lambda x: self.add_order(), 2)
 
     def add_order(self):
-        from connection_status import internet_connection
-        if self.food_count == 0:
-            self.food_count = self.food_count + 1
-            if internet_connection.internet:
+        try:
+            if self.food_count == 0:
+                self.food_count = self.food_count + 1
                 food = self.root.ids.food_cat
                 from firebase_admin import credentials, initialize_app, db
                 cred = credentials.Certificate("farmzon-abdcb-c4c57249e43b.json")
@@ -452,31 +438,45 @@ class MainApp(MDApp):
                                              name="food" + str(current_time))
                 store = db.reference("Yummy", default_app).child("Orders")
                 stores = store.get()
+                count = 0
                 for y, x in stores.items():
                     food_categories = category()
+                    del_btn = MDIconButton(icon="delete", on_release=self.remove_widgets,
+                                           pos_hint={"center_x": .9, "center_y": .3}, theme_text_color="Custom",
+                                           text_color={60/255, 66/255, 75/255}, user_font_size="26sp")
+                    count += 1
                     # food_categories.md_bg_color = 245 / 255, 0 / 255, 72 / 255, 1
                     food_categories.id = y
+                    del_btn.id = y
+                    food_categories.md_bg_color = 121 / 255, 174 / 255, 141 / 255, 1
                     food_categories.add_widget(Labels(text="Phone:" + " " + y))
-                    food_categories.add_widget(MDSeparator(height="1dp"))
-                    food_categories.add_widget(Labels(text="Amount:" + " " + str(x['amount'])))
-                    food_categories.add_widget(Labels(text="Location:" + " " + str(x['location'])))
-                    food_categories.add_widget(Labels(text="Product Name:" + " " + str(x['product name'])))
-                    food_categories.add_widget(Labels(text="Quantity:" + " " + str(x['quantity'])))
-                    food_categories.add_widget(Labels(text="Time Ordered:" + " " + str(x['time'])))
+                    food_categories.add_widget(MDSeparator(height="5dp"))
+                    food_categories.add_widget(Labels(text="Amount:" + " " + " " + str(x['amount'])))
+                    food_categories.add_widget(Labels(text="Location:" + " " + " " + str(x['location'])))
+                    food_categories.add_widget(Labels(text="Product-Name:" + " " + " " + str(x['product name'])))
+                    food_categories.add_widget(Labels(text="Quantity:" + " " + " " + str(x['quantity'])))
+                    food_categories.add_widget(Labels(text="Time-Ordered:" + " " + " " + str(x['time'])))
+                    food_categories.add_widget(del_btn)
                     food.add_widget(food_categories)
+                self.order_number = str(count)
 
             else:
                 pass
-        else:
-            pass
+        except:
+            toast("no internet")
 
-    def refresh(self, *kwargs):
+    def success(self, *kwargs):
+        self.refresh()
+
+    def refresh(self):
         parent = self.root.ids.food_cat
         all_childs = parent.children
         identity = []
         self.food_count = 0
         for child in all_childs:
             identity.append(child.id)
+
+        self.order_number = str(identity.__len__())
 
         for i in identity:
             self.remove_wide(i)
@@ -488,6 +488,17 @@ class MainApp(MDApp):
         for child in parent.children:
             if name == child.id:
                 parent.remove_widget(child)
+
+    def remove_widgets(self, instance):
+        name = instance.id
+        parent = self.root.ids.food_cat
+        for child in parent.children:
+            if name == child.id:
+                parent.remove_widget(child)
+                self.del_entity(child.id)
+
+    def del_entity(self, name):
+        db.reference("Yummy").child("Orders").child(name).delete()
 
     def validate_user(self, phone, password):
         if phone == "" and phone.Isdigit():
@@ -524,7 +535,7 @@ class MainApp(MDApp):
     def listen_db(self):
         try:
             print("i am listening......")
-            my_stream = db.reference("Yummy").child("Orders").listen(self.refresh)
+            my_stream = db.reference("Yummy").child("Orders").listen(self.success)
         except:
             pass
 

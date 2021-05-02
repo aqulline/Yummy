@@ -12,16 +12,6 @@ ScreenManager:
                 pos_hint: {"center_x": .9, "center_y": .9}
                 on_release:
                     app.admin_memory()
-            MDIconButton:
-                icon:"plus"
-                pos_hint: {"center_x": .5, "center_y": .7}
-                on_release:
-                    app.add_follower()
-                    app.load_follower()
-            MDLabel:
-                text:"FOLLOWERS:" + " " + app.follower
-                halign:"center"
-                pos_hint: {"center_x": .7, "center_y": .7}
         MDCard:
             id:cart
             #md_bg_color: self.theme_cls.primary_color
@@ -34,6 +24,7 @@ ScreenManager:
             MDLabel:
                 text:"yummy"
                 halign:"center"
+                bold:True
                 height: self.texture_size[1]
         MDCard:
             md_bg_color: self.theme_cls.primary_color
@@ -54,6 +45,7 @@ ScreenManager:
                 MDLabel:
                     text:"mihogo"
                     halign:"center"
+                    bold:True
                     pos_hint: {"center_x": .5, "center_y": .4}
         MDCard:
             id:car
@@ -76,6 +68,7 @@ ScreenManager:
                 MDLabel:
                     text:"juice"
                     halign:"center"
+                    bold:True
                     pos_hint: {"center_x": .5, "center_y": .4}
     MDScreen:
         name:"mihogo"
@@ -102,10 +95,12 @@ ScreenManager:
                 MDLabel:
                     text:"Price:"
                     halign:"center"
+                    bold:True
                     pos_hint: {"center_x": .35, "center_y": .5}
                 MDLabel:
                     text:"200/tsh"
                     halign:"center"
+                    bold:True
                     pos_hint: {"center_x": .4, "center_y": .5}
                     elevation: 3
             NumberOnly:
@@ -122,6 +117,7 @@ ScreenManager:
             MDLabel:
                 text:"total price" +" "+ app.calculator + "/tsh"
                 halign:"center"
+                bold:True
                 pos_hint: {'center_x': .5, 'center_y': .35}
             MDDropDownItem:
                 id:drop_item_one
@@ -162,10 +158,12 @@ ScreenManager:
                 MDLabel:
                     text:"Price:"
                     halign:"center"
+                    bold:True
                     pos_hint: {"center_x": .35, "center_y": .5}
                 MDLabel:
                     text:"500/tsh"
                     halign:"center"
+                    bold:True
                     pos_hint: {"center_x": .4, "center_y": .5}
                     elevation: 3
             NumberOnly:
@@ -182,6 +180,7 @@ ScreenManager:
             MDLabel:
                 text:"total price" +" "+ app.calculator2 + "/tsh"
                 halign:"center"
+                bold:True
                 pos_hint: {'center_x': .5, 'center_y': .35}
             MDDropDownItem:
                 id:drop_item_two
@@ -242,28 +241,35 @@ ScreenManager:
             app.add_order()
         MDBoxLayout:
             orientation:"vertical"
-            MDCard:
-                id:price_juice
-                size_hint: None, None
-                border_radius: 20
-                radius: [15]
-                border_radius: "12dp"
-                size: 145, "80dp"
-                pos_hint: {"center_x": .5, "center_y": .55}
-                on_release:
-                    app.refresh()
-                MDLabel:
-                    text:"O r d e r s"
-                    halign:"center"
-                    pos_hint: {"center_x": .35, "center_y": .5}
             ScrollView:
                 id: scroll
                 MDGridLayout:
                     cols: 1
                     adaptive_height: True
                     padding: dp(4), dp(4)
-                    spacing: dp(7)
+                    spacing: dp(10)
                     id:food_cat
+        MDCard:
+            orientation:"vertical"
+            spacing: "1dp"
+            id:order
+            size_hint: None, None
+            border_radius: 20
+            radius: [15]
+            border_radius: "12dp"
+            size: 155, "70dp"
+            pos_hint: {"center_x": .5, "center_y": .9}
+            on_release:
+                app.refresh()
+            MDLabel:
+                text:"O r d e r s"
+                halign:"center"
+                pos_hint: {"center_x": .5, "center_y": .5}
+                bold:True
+            MDLabel:
+                halign:"center"
+                text:"(" + app.order_number + ")"
+                bold:True
 
 <phone_dialog>
     NumberOnly:
@@ -309,10 +315,12 @@ ScreenManager:
 <category>:
     orientation: "vertical"
     padding: "8dp"
+    spacing: "10dp"
     border_radius: 20
+    border_color: 1
     radius: [15]
     size_hint: None, None
-    size: app.size_x - 30, "150dp"
+    size: app.size_x - 15, "250dp"
     focus_behavior: False
     ripple_behavior: True
     elevation: "6"
@@ -321,10 +329,10 @@ ScreenManager:
 <Labels>:
     text: "Title"
     theme_text_color: "Custom"
-    text_color: 230/255, 150/255, 11/255
+    #text_color: 230/255, 150/255, 11/255
     size_hint_y: None
     height: self.texture_size[1]
     font_style:"Body1"
-    #halign:"center"
+    bold: True
 
 
