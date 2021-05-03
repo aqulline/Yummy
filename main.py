@@ -371,7 +371,7 @@ class MainApp(MDApp):
         thread = threading.Thread(target=DB.upload_data,
                                   args=(DB(), phone, self.location, quantity, self.total_amount, product))
         thread.start()
-        toast("Ordered successfully!")
+        toast("Ordered successfully!", 10)
 
     def hook_keyboard(self, window, key, *largs):
         sm = self.root
@@ -424,7 +424,6 @@ class MainApp(MDApp):
 
     def order_spinner2(self):
         self.spin_active = True
-        Clock.schedule_once(lambda x: self.add_order(), 2)
 
     def add_order(self):
         try:
@@ -443,7 +442,7 @@ class MainApp(MDApp):
                     food_categories = category()
                     del_btn = MDIconButton(icon="delete", on_release=self.remove_widgets,
                                            pos_hint={"center_x": .9, "center_y": .3}, theme_text_color="Custom",
-                                           text_color={60/255, 66/255, 75/255}, user_font_size="26sp")
+                                           text_color={60 / 255, 66 / 255, 75 / 255}, user_font_size="26sp")
                     count += 1
                     # food_categories.md_bg_color = 245 / 255, 0 / 255, 72 / 255, 1
                     food_categories.id = y
@@ -464,6 +463,7 @@ class MainApp(MDApp):
                 pass
         except:
             toast("no internet")
+            self.spin_active = False
 
     def success(self, *kwargs):
         self.refresh()
