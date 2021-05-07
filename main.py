@@ -1,6 +1,5 @@
-import datetime
 import os
-
+import datetime
 from kivy.properties import NumericProperty, ObjectProperty, StringProperty, BooleanProperty
 from kivymd.app import MDApp
 from kivy.core.window import Window
@@ -33,6 +32,13 @@ from plyer import notification, utils
 
 Window.keyboard_anim_args = {"d": .2, "t": "linear"}
 Window.softinput_mode = "below_target"
+
+if utils.platform == 'win':
+    from kivy import Config
+
+    Config.set('graphics', 'multisamples', '0')
+
+    os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'
 
 
 class category(MDCard):
@@ -227,6 +233,9 @@ class MainApp(MDApp):
         price = self.root.ids.price_miho
         price.md_bg_color = 245 / 255, 0 / 255, 72 / 255, 1
 
+        price_rim = self.root.ids.price_rim
+        price_rim.md_bg_color = 245 / 255, 0 / 255, 72 / 255, 1
+
         price_juice = self.root.ids.price_juice
         price_juice.md_bg_color = 245 / 255, 0 / 255, 72 / 255, 1
 
@@ -404,7 +413,7 @@ class MainApp(MDApp):
         elif mingapi == '.':
             identity.text = "1"
         else:
-            self.total_amount = self.calculator = str(float(mingapi) * 200)
+            self.total_amount = self.calculator = str(float(mingapi) * 150)
 
     def callculator2(self, mingapi):
         self.calculator2 = mingapi + "0"
@@ -415,6 +424,16 @@ class MainApp(MDApp):
             identity.text = '1'
         else:
             self.total_amount = self.calculator2 = str(float(mingapi) * 500)
+
+    def callculator_rim(self, mingapi):
+        identity = self.root.ids.rim_mingap
+        self.calculator = mingapi + "0"
+        if mingapi == "":
+            pass
+        elif mingapi == '.':
+            identity.text = "1"
+        else:
+            self.total_amount = self.calculator = str(float(mingapi) * 50)
 
     def callback(self, button):
         self.menu.caller = button
@@ -437,6 +456,7 @@ class MainApp(MDApp):
                                              name="food" + str(current_time))
                 store = db.reference("Yummy", default_app).child("Orders")
                 stores = store.get()
+
                 count = 0
                 for y, x in stores.items():
                     food_categories = category()

@@ -32,8 +32,8 @@ ScreenManager:
             border_radius: 20
             radius: [15]
             border_radius: "12dp"
-            size: 120, "150dp"
-            pos_hint: {"center_x": .3, "center_y": .5}
+            size: 200, "109dp"
+            pos_hint: {"center_x": .5, "center_y": .7}
             elevation:10
             on_release:
                 manager.current = "mihogo"
@@ -54,8 +54,8 @@ ScreenManager:
             border_radius: 20
             radius: [15]
             border_radius: "12dp"
-            size: 120, "150dp"
-            pos_hint: {"center_x": .7, "center_y": .5}
+            size: 200, "109dp"
+            pos_hint: {"center_x": .5, "center_y": .5}
             elevation:10
             on_release:
                 manager.current = "juice"
@@ -67,6 +67,28 @@ ScreenManager:
                     pos_hint: {"center_x": .5, "center_y": .75}
                 MDLabel:
                     text:"juice"
+                    halign:"center"
+                    bold:True
+                    pos_hint: {"center_x": .5, "center_y": .4}
+
+        MDCard:
+            md_bg_color: self.theme_cls.primary_color
+            size_hint: None, None
+            border_radius: 20
+            radius: [15]
+            border_radius: "12dp"
+            size: 200, "109dp"
+            pos_hint: {"center_x": .5, "center_y": .3}
+            elevation:10
+            on_release:
+                manager.current = "rim"
+                app.count = app.count + 1
+            FloatLayout:
+                MDIconButton:
+                    icon: "rim.png"
+                    pos_hint: {"center_x": .5, "center_y": .75}
+                MDLabel:
+                    text:"Rim"
                     halign:"center"
                     bold:True
                     pos_hint: {"center_x": .5, "center_y": .4}
@@ -98,7 +120,7 @@ ScreenManager:
                     bold:True
                     pos_hint: {"center_x": .35, "center_y": .5}
                 MDLabel:
-                    text:"200/tsh"
+                    text:"150/tsh"
                     halign:"center"
                     bold:True
                     pos_hint: {"center_x": .4, "center_y": .5}
@@ -194,6 +216,70 @@ ScreenManager:
                 on_release:
                     app.product_name = "juice"
                     app.quantity = mingap_juice.text
+                    app.phone_number_dialog()
+
+
+    MDScreen:
+        name:"rim"
+        md_bg_color:60/255, 66/255, 75/255, 1
+        FloatLayout:
+            MDCard
+                id:rim_carry
+                size_hint: None, None
+                border_radius: 20
+                radius: [15]
+                border_radius: "12dp"
+                size: app.size_x - 100, "180dp"
+                pos_hint: {"center_x": .5, "center_y": .8}
+                FitImage:
+                    source:"rim.png"
+            MDCard:
+                id:price_rim
+                size_hint: None, None
+                border_radius: 20
+                radius: [15]
+                border_radius: "12dp"
+                size: 145, "80dp"
+                pos_hint: {"center_x": .5, "center_y": .55}
+                MDLabel:
+                    text:"Price:"
+                    halign:"center"
+                    bold:True
+                    pos_hint: {"center_x": .35, "center_y": .5}
+                MDLabel:
+                    text:"50/tsh"
+                    halign:"center"
+                    bold:True
+                    pos_hint: {"center_x": .4, "center_y": .5}
+                    elevation: 3
+            NumberOnly:
+                id:rim_mingap
+                size_hint: .2, None
+                pos_hint: {"center_x": .5, "center_y": .4}
+                height: "30dp"
+                hint_text:"idadi"
+                color_mode:"accent"
+                theme_text_color: "ContrastParentBackground"
+                text_color: 0, 0, 0, 0
+                on_text:
+                    app.callculator(rim_mingap.text)
+            MDLabel:
+                text:"total price" +" "+ app.calculator + "/tsh"
+                halign:"center"
+                bold:True
+                pos_hint: {'center_x': .5, 'center_y': .35}
+            MDDropDownItem:
+                id:drop_item_one
+                pos_hint: {'center_x': .5, 'center_y': .25}
+                text: app.menu_text
+                on_release:
+                    app.callback(drop_item_one)
+            MDRoundFlatButton:
+                text: "Order"
+                pos_hint: {'center_x': .5, 'center_y': .13}
+                on_release:
+                    app.product_name = "Rim"
+                    app.quantity = rim_mingap.text
                     app.phone_number_dialog()
 
     MDScreen:
