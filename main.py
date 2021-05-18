@@ -1,3 +1,4 @@
+import glob
 import os
 import datetime
 from kivy.properties import NumericProperty, ObjectProperty, StringProperty, BooleanProperty
@@ -13,6 +14,8 @@ import re
 import threading
 
 from kivymd.uix.card import MDCard, MDSeparator
+from kivymd.uix.filemanager import MDFileManager
+from kivymd.uix.imagelist import SmartTileWithLabel
 from kivymd.uix.label import MDLabel
 
 from Database import Upload_image as DB
@@ -39,7 +42,6 @@ if utils.platform == 'win':
     Config.set('graphics', 'multisamples', '0')
 
     os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'
-
 
 
 class category(MDCard):
@@ -148,6 +150,14 @@ class MainApp(MDApp):
         instance_id='4eacff80-61d8-48d7-ba72-9e7aede4119c',
         secret_key='4A9C78664B4FCC25397DD2F780028D9967F69BA4229736B49420727081646EFC',
     )
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.file_manager = MDFileManager()
+        self.file_manager.exit_manager = self.exit_manager
+        self.file_manager.select_path = self.select_path
+        self.file_manager.preview = True
+        self.file_manager.previous = True
 
     def play(self):
         sound = SoundLoader.load('no.wav')
@@ -559,6 +569,68 @@ class MainApp(MDApp):
             my_stream = db.reference("Yummy").child("Orders").listen(self.success)
         except:
             pass
+
+    def thread_perm(self):
+        thread = threading.Thread(target=self.Permission)
+        thread.start()
+
+    def Permission(self, android=None):
+        if utils.platform == 'android':
+            from android.permissions import request_permissions, Permission  # todo
+            request_permissions([Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])  # todo
+            self.file_manager_open()  # todo
+        else:
+            ims = []
+            directory_list = list()
+            for root, dirs, files in os.walk("C://Users//Beast//Downloads", topdown=False):
+                for file_ in files:
+                    full_file_path = os.path.join(root, file_)
+                    if full_file_path.endswith(('.png', '.jpg', '.jpeg')):
+                        directory_list.append(full_file_path)
+                        print(full_file_path)
+            for d in directory_list:
+                i = SmartTileWithLabel(source=d)
+                img = self.root.ids.images_added
+                img.add_widget(i)
+
+    def file_manager_open(self):
+        from android.storage import primary_external_storage_path  # todo
+        primary_ext_storage = primary_external_storage_path()  # todo
+        self.file_manager.show("/")  # todo
+        self.file_manager.show(primary_ext_storage)  # output manager to the screen
+        self.manager_open = True
+
+    def select_path(self, path):
+        """It will be called when you click on the file name
+        or the catalog selection button.
+        :type path: str;
+        :param path: path to the selected directory or file;
+        """
+
+        self.exit_manager()
+        toast(path)
+        if path.lower().endswith(('.png', '.jpg', '.jpeg')):
+            toast("correct format")
+            image = self.root.ids.product_image
+
+            image.source = path
+            self.product_image = path
+        else:
+            toast("Wrong format")
+
+    def exit_manager(self, *args):
+        '''Called when the user reaches the root of the directory tree.'''
+
+        self.manager_open = False
+        self.file_manager.close()
+
+    def events(self, instance, keyboard, keycode, text, modifiers):
+        '''Called when buttons are pressed on the mobile device.'''
+
+        if keyboard in (1001, 27):
+            if self.manager_open:
+                self.file_manager.back()
+        return True
 
     def build(self):
         self.theme_cls.theme_style = "Dark"

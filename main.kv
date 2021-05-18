@@ -326,37 +326,122 @@ ScreenManager:
         md_bg_color:60/255, 66/255, 75/255, 1
         on_enter:
             app.add_order()
-        MDBoxLayout:
-            orientation:"vertical"
-            ScrollView:
-                id: scroll
-                MDGridLayout:
-                    cols: 1
-                    adaptive_height: True
-                    padding: dp(4), dp(4)
-                    spacing: dp(10)
-                    id:food_cat
-        MDCard:
-            orientation:"vertical"
-            spacing: "1dp"
-            id:order
-            size_hint: None, None
-            border_radius: 20
-            radius: [15]
-            border_radius: "12dp"
-            size: 155, "70dp"
-            pos_hint: {"center_x": .5, "center_y": .9}
-            on_release:
-                app.refresh()
-            MDLabel:
-                text:"O r d e r s"
-                halign:"center"
-                pos_hint: {"center_x": .5, "center_y": .5}
-                bold:True
-            MDLabel:
-                halign:"center"
-                text:"(" + app.order_number + ")"
-                bold:True
+        MDBottomNavigation:
+            panel_color: .2, .2, .2, 1
+            text_color_active: 1, 0, 1, 1
+            MDBottomNavigationItem:
+                name: 'orders'
+                text: 'Orders'
+                icon: 'reorder-horizontal'
+                MDBoxLayout:
+                    orientation:"vertical"
+                    ScrollView:
+                        id: scroll
+                        MDGridLayout:
+                            cols: 1
+                            adaptive_height: True
+                            padding: dp(4), dp(4)
+                            spacing: dp(10)
+                            id:food_cat
+                MDCard:
+                    orientation:"vertical"
+                    spacing: "1dp"
+                    id:order
+                    size_hint: None, None
+                    border_radius: 20
+                    radius: [15]
+                    border_radius: "12dp"
+                    size: 155, "70dp"
+                    pos_hint: {"center_x": .5, "center_y": .9}
+                    on_release:
+                        app.refresh()
+                    MDLabel:
+                        text:"O r d e r s"
+                        halign:"center"
+                        pos_hint: {"center_x": .5, "center_y": .5}
+                        bold:True
+                    MDLabel:
+                        halign:"center"
+                        text:"(" + app.order_number + ")"
+                        bold:True
+            MDBottomNavigationItem:
+                name: 'add_product'
+                text: 'Products'
+                icon: 'food'
+                name:"product_detail"
+                FloatLayout:
+                    orientation:"vertical"
+                    ScrollView:
+                        MDGridLayout:
+                            cols: 1
+                            adaptive_height: True
+                            padding: dp(9), dp(5)
+                            spacing: dp(15)
+                            MDIconButton:
+                                icon:"arrow-left"
+                                on_release:
+                                    app.Screen_changer("admin_main_products")
+                            MDCard:
+                                size_hint: None, None
+                                size: app.size_x - 15, "180dp"
+                                padding: dp(10), dp(5)
+                                pos_hint: {"center_x": 1, "center_y": .8}
+                                elevation:"0"
+                                on_release:
+                                    # app.file_manager_open()
+                                    manager.current="images"
+                                    app.thread_perm()
+                                    print("dog")
+                                AsyncImage:
+                                    id:product_image
+                                    source: 'picture.png'
+                                    size: self.texture_size
+                                    allow_stretch: False
+                                    keep_ratio: False
+                            MDLabel:
+                                halign:"center"
+                                text:"Full sack: 90kg"
+                            MDLabel:
+                                halign:"center"
+                                text:"Half sack: 45kg"
+                            MDTextField:
+                                id:product_name
+                                hint_text: "Product name:"
+                                helper_text: "Example: Maindi Mazuri"
+                                helper_text_mode: "persistent"
+                            MDTextField:
+                                id:product_amount
+                                hint_text: "Product price:"
+                                helper_text: "Example:100"
+                                helper_text_mode: "persistent"
+                            MDTextField:
+                                id:product_amount
+                                hint_text: "Admin name:"
+                                helper_text: "Example:100"
+                                helper_text_mode: "persistent"
+                            NumberOnly:
+                                id:product_amount
+                                hint_text: "Admin phone:"
+                                helper_text: "Example:100"
+                                helper_text_mode: "persistent"
+                            MDRoundFlatButton:
+                                text:"SUBMIT"
+                                pos_hint: {'center_x': 1, 'center_y': .2}
+                                size_hint_x: .7
+            MDBottomNavigationItem:
+                name: 'admin_info'
+                text: 'Admins'
+                icon: 'account-box'
+    MDScreen:
+        name:"images"
+        md_bg_color:60/255, 66/255, 75/255, 1
+        ScrollView:
+            MDGridLayout:
+                cols: 1
+                adaptive_height: True
+                padding: dp(4), dp(4)
+                spacing: dp(10)
+                id:images_added
 
 <phone_dialog>
     NumberOnly:
@@ -399,6 +484,7 @@ ScreenManager:
         theme_text_color:"Custom"
         text_color:	121/255, 174/255, 141/255, 1
         markup: True
+
 <category>:
     orientation: "vertical"
     padding: "8dp"
@@ -422,4 +508,12 @@ ScreenManager:
     font_style:"Body1"
     bold: True
 
+<MyTile@SmartTileWithLabel>
+    size_hint_y: None
+    height: "240dp"
+
+<Check@MDCheckbox>:
+    group: 'group'
+    size_hint: None, None
+    size: dp(48), dp(48)
 
