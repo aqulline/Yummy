@@ -1,10 +1,9 @@
-import glob
 import os
 import datetime
 from kivy.properties import NumericProperty, ObjectProperty, StringProperty, BooleanProperty
 from kivymd.app import MDApp
 from kivy.core.window import Window
-from kivy.clock import Clock
+from kivy.uix.image import AsyncImage
 from kivy.base import EventLoop
 from kivy.core.audio import SoundLoader
 
@@ -15,12 +14,12 @@ import threading
 
 from kivymd.uix.card import MDCard, MDSeparator
 from kivymd.uix.filemanager import MDFileManager
-from kivymd.uix.imagelist import SmartTileWithLabel
 from kivymd.uix.label import MDLabel
 
 from Database import Upload_image as DB
 
 from kivymd.toast import toast
+from kivy.clock import Clock
 from kivymd.uix.boxlayout import MDBoxLayout
 from phonenumbers import carrier
 from phonenumbers.phonenumberutil import number_type
@@ -33,6 +32,7 @@ from pusher_push_notifications import PushNotifications
 from firebase_admin import credentials, initialize_app, db
 from plyer import notification, utils
 
+# keyboard monitor and sensor
 Window.keyboard_anim_args = {"d": .2, "t": "linear"}
 Window.softinput_mode = "below_target"
 
@@ -45,6 +45,14 @@ if utils.platform == 'win':
 
 
 class category(MDCard):
+    pass
+
+
+class category_gal(MDCard):
+    pass
+
+
+class category_ga(AsyncImage):
     pass
 
 
@@ -113,6 +121,7 @@ class MainApp(MDApp):
     dialog_phone = None
     dialog_last = None
     setter = None
+    counter_image = NumericProperty(0)
     spin_active = BooleanProperty(False)
     menu_text = StringProperty("Your Location")
 
@@ -133,6 +142,7 @@ class MainApp(MDApp):
     admin_phone = StringProperty("")
     admin_password = StringProperty("")
     admin_true = BooleanProperty(False)
+    admin_product = StringProperty("")
 
     # DATABASE
     cred = credentials.Certificate("farmzon-abdcb-c4c57249e43b.json")
@@ -231,6 +241,11 @@ class MainApp(MDApp):
             kamba = threading.Thread(target=self.listen_db)
             kamba.start()
 
+    def permision_req(self):
+        if utils.platform == 'android':
+            from android.permissions import request_permissions, Permission  # todo
+            request_permissions([Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])
+
     def on_start(self):
         drop_one = self.root.ids.drop_item_one
         drop_two = self.root.ids.drop_item_two
@@ -238,6 +253,7 @@ class MainApp(MDApp):
         notification.notify(title="hi", message="me")
         self.menu_fun(drop_one)
         self.menu_fun(drop_two)
+        self.permision_req()
 
         # cards background colors
 
@@ -284,7 +300,7 @@ class MainApp(MDApp):
                     "text": vimbweta[i]
                 }
             )
-        for i in range(27):
+        for i in range(22):
             if i == 0:
                 pass
             else:
@@ -571,27 +587,61 @@ class MainApp(MDApp):
             pass
 
     def thread_perm(self):
-        thread = threading.Thread(target=self.Permission)
-        thread.start()
+        if self.counter_image <= 0:
+            thread = threading.Thread(target=self.Permission)
+            thread.start()
+
+    def DCIM(self, path):
+        for root, dirs, files in os.walk(path, topdown=False):
+            for file_ in files:
+                full_file_path = os.path.join(root, file_)
+                if full_file_path.endswith(('.png', '.jpg', '.jpeg')):
+                    image = full_file_path
+                    cat_class = category_gal()
+                    cat_class.add_widget(category_ga(source=image))
+                    img = self.root.ids.images_added
+                    img.add_widget(cat_class)
+
+    def Pictures(self, path):
+        for root, dirs, files in os.walk(path, topdown=False):
+            for file_ in files:
+                full_file_path = os.path.join(root, file_)
+                if full_file_path.endswith(('.png', '.jpg', '.jpeg')):
+                    image = full_file_path
+                    cat_class = category_gal()
+                    cat_class.add_widget(category_ga(source=image))
+                    img = self.root.ids.images_added
+                    img.add_widget(cat_class)
 
     def Permission(self, android=None):
-        if utils.platform == 'android':
-            from android.permissions import request_permissions, Permission  # todo
-            request_permissions([Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])  # todo
-            self.file_manager_open()  # todo
+        if self.counter_image <= 0:
+            if utils.platform == 'android':  # todo
+                # self.file_manager_open()  # todo
+                self.counter_image = self.counter_image + 1
+                from android.storage import primary_external_storage_path
+                primary_ext_storage = primary_external_storage_path() + "/" + "Pictures" + "/"
+                # self.Pictures(primary_ext_storage)
+                # self.DCIM(primary_ext_storage)
+                from gallary import Gambler as GA
+                Clock.schedule_once(GA.user_select_image, 0)
+                self.admin_product = str(GA.path_of_picture)
+                image = self.root.ids.product_image
+                image.source = self.admin_product
+
+            else:
+                self.counter_image = self.counter_image + 1
+                for root, dirs, files in os.walk("/home/alpha9060/Downloads", topdown=False):
+                    for file_ in files:
+                        full_file_path = os.path.join(root, file_)
+                        if full_file_path.endswith(('.png', '.jpg', '.jpeg')):
+                            print(full_file_path)
+                            image = full_file_path
+                            cat_class = category_gal()
+                            cat_class.add_widget(category_ga(source=image))
+                            img = self.root.ids.images_added
+                            img.add_widget(cat_class)
         else:
-            ims = []
-            directory_list = list()
-            for root, dirs, files in os.walk("C://Users//Beast//Downloads", topdown=False):
-                for file_ in files:
-                    full_file_path = os.path.join(root, file_)
-                    if full_file_path.endswith(('.png', '.jpg', '.jpeg')):
-                        directory_list.append(full_file_path)
-                        print(full_file_path)
-            for d in directory_list:
-                i = SmartTileWithLabel(source=d)
-                img = self.root.ids.images_added
-                img.add_widget(i)
+            pass
 
     def file_manager_open(self):
         from android.storage import primary_external_storage_path  # todo
