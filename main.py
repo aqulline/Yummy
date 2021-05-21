@@ -586,42 +586,9 @@ class MainApp(MDApp):
         except:
             pass
 
-    def thread_perm(self):
-        if self.counter_image <= 0:
-            thread = threading.Thread(target=self.Permission)
-            thread.start()
-
-    def DCIM(self, path):
-        for root, dirs, files in os.walk(path, topdown=False):
-            for file_ in files:
-                full_file_path = os.path.join(root, file_)
-                if full_file_path.endswith(('.png', '.jpg', '.jpeg')):
-                    image = full_file_path
-                    cat_class = category_gal()
-                    cat_class.add_widget(category_ga(source=image))
-                    img = self.root.ids.images_added
-                    img.add_widget(cat_class)
-
-    def Pictures(self, path):
-        for root, dirs, files in os.walk(path, topdown=False):
-            for file_ in files:
-                full_file_path = os.path.join(root, file_)
-                if full_file_path.endswith(('.png', '.jpg', '.jpeg')):
-                    image = full_file_path
-                    cat_class = category_gal()
-                    cat_class.add_widget(category_ga(source=image))
-                    img = self.root.ids.images_added
-                    img.add_widget(cat_class)
-
     def Permission(self, android=None):
         if self.counter_image <= 0:
-            if utils.platform == 'android':  # todo
-                # self.file_manager_open()  # todo
-                self.counter_image = self.counter_image + 1
-                from android.storage import primary_external_storage_path
-                primary_ext_storage = primary_external_storage_path() + "/" + "Pictures" + "/"
-                # self.Pictures(primary_ext_storage)
-                # self.DCIM(primary_ext_storage)
+            if utils.platform == 'android':
                 from gallary import Gambler as GA
                 Clock.schedule_once(GA.user_select_image, 0)
                 self.admin_product = str(GA.path_of_picture)
@@ -642,45 +609,6 @@ class MainApp(MDApp):
                             img.add_widget(cat_class)
         else:
             pass
-
-    def file_manager_open(self):
-        from android.storage import primary_external_storage_path  # todo
-        primary_ext_storage = primary_external_storage_path()  # todo
-        self.file_manager.show("/")  # todo
-        self.file_manager.show(primary_ext_storage)  # output manager to the screen
-        self.manager_open = True
-
-    def select_path(self, path):
-        """It will be called when you click on the file name
-        or the catalog selection button.
-        :type path: str;
-        :param path: path to the selected directory or file;
-        """
-
-        self.exit_manager()
-        toast(path)
-        if path.lower().endswith(('.png', '.jpg', '.jpeg')):
-            toast("correct format")
-            image = self.root.ids.product_image
-
-            image.source = path
-            self.product_image = path
-        else:
-            toast("Wrong format")
-
-    def exit_manager(self, *args):
-        '''Called when the user reaches the root of the directory tree.'''
-
-        self.manager_open = False
-        self.file_manager.close()
-
-    def events(self, instance, keyboard, keycode, text, modifiers):
-        '''Called when buttons are pressed on the mobile device.'''
-
-        if keyboard in (1001, 27):
-            if self.manager_open:
-                self.file_manager.back()
-        return True
 
     def build(self):
         self.theme_cls.theme_style = "Dark"

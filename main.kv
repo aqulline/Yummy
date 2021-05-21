@@ -7,7 +7,6 @@ ScreenManager:
         name:"one"
         md_bg_color:60/255, 66/255, 75/255, 1
         FloatLayout:
-
             MDIconButton:
                 icon:"account"
                 pos_hint: {"center_x": .9, "center_y": .9}
@@ -218,8 +217,6 @@ ScreenManager:
                     app.product_name = "juice"
                     app.quantity = mingap_juice.text
                     app.phone_number_dialog()
-
-
     MDScreen:
         name:"rim"
         md_bg_color:60/255, 66/255, 75/255, 1
@@ -282,7 +279,6 @@ ScreenManager:
                     app.product_name = "Rim"
                     app.quantity = rim_mingap.text
                     app.phone_number_dialog()
-
     MDScreen:
         name:"login"
         md_bg_color:60/255, 66/255, 75/255, 1
@@ -431,16 +427,6 @@ ScreenManager:
                 name: 'admin_info'
                 text: 'Admins'
                 icon: 'account-box'
-    MDScreen:
-        name:"images"
-        md_bg_color:60/255, 66/255, 75/255, 1
-        ScrollView:
-            MDGridLayout:
-                cols: 1
-                adaptive_height: True
-                padding: dp(4), dp(4)
-                spacing: dp(10)
-                id:images_added
 
 <phone_dialog>
     NumberOnly:
