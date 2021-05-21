@@ -36,7 +36,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3, kivy==2.0.0rc4, kivymd==0.104.1, hostpython3, android, requests, openssl, urllib3, chardet, idna, jwt, cryptography, pyparsing, firebase_admin, PIL, google-auth, cachetools, pyasn1, pyasn1_modules, rsa, google-api-python-client, httplib2, plyer==1.4.3, pyjnius, pusher_push_notifications, phonenumbers
+requirements = python3, kivy==2.0.0rc4, kivymd==0.104.1, hostpython3, android, requests, openssl, urllib3, chardet, idna, jwt, cryptography, pyparsing, firebase_admin, PIL, google-auth, cachetools, pyasn1, pyasn1_modules, rsa, google-api-python-client, httplib2, plyer==1.4.3, pyjnius, pusher_push_notifications, phonenumbers, jnius
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -88,7 +88,7 @@ fullscreen = 1
 #android.presplash_lottie = "path/to/lottie/file.json"
 
 # (list) Permissions
-android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE
+android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, ACCESS_MEDIA_LOCATION, READ_EXTERNAL_STORAGE,ACCESS_WIFI_STATE,READ_PHONE_STATE,ACCESS_NETWORK_STATE
 
 # (list) features (adds uses-feature -tags to manifest)
 #android.features = android.hardware.usb.host
