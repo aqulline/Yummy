@@ -263,7 +263,7 @@ ScreenManager:
                 theme_text_color: "ContrastParentBackground"
                 text_color: 0, 0, 0, 0
                 on_text:
-                    app.callculator(rim_mingap.text)
+                    app.callculator_rim(rim_mingap.text)
             MDLabel:
                 text:"total price" +" "+ app.calculator + "/tsh"
                 halign:"center"
@@ -390,8 +390,7 @@ ScreenManager:
                                 on_release:
                                     # app.file_manager_open()
                                     manager.current="images"
-                                    app.thread_perm()
-                                    print("dog")
+                                    app.Permission()
                                 AsyncImage:
                                     id:product_image
                                     source: 'picture.png'
@@ -498,6 +497,18 @@ ScreenManager:
     ripple_behavior: True
     elevation: "6"
 
+<category_gal>:
+    orientation: "vertical"
+    padding: "8dp"
+    spacing: "10dp"
+    border_radius: 20
+    border_color: 1
+    radius: [15]
+    size_hint: None, None
+    size: app.size_x - 15, "250dp"
+    focus_behavior: False
+    ripple_behavior: True
+    elevation: "6"
 
 <Labels>:
     text: "Title"
