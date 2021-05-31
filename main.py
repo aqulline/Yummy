@@ -1,22 +1,24 @@
 import os
-import datetime
+import time
+
 from kivy.properties import NumericProperty, ObjectProperty, StringProperty, BooleanProperty
+from kivy.uix.floatlayout import FloatLayout
 from kivymd.app import MDApp
 from kivy.core.window import Window
 from kivy.uix.image import AsyncImage
 from kivy.base import EventLoop
-from kivy.core.audio import SoundLoader
 
 import phonenumbers
 import random
+import datetime
 import re
 import threading
 
+from kivymd.uix.behaviors import CircularRippleBehavior
 from kivymd.uix.card import MDCard, MDSeparator
-from kivymd.uix.filemanager import MDFileManager
 from kivymd.uix.label import MDLabel
 
-from Database import Upload_image as DB
+from Database import Upload_Data as DB
 
 from kivymd.toast import toast
 from kivy.clock import Clock
@@ -27,10 +29,9 @@ from kivymd.uix.button import MDFlatButton, MDRaisedButton, MDIconButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.list import OneLineListItem
 from kivymd.uix.menu import MDDropdownMenu
-from kivymd.uix.textfield import MDTextField, MDTextFieldRound
-from pusher_push_notifications import PushNotifications
-from firebase_admin import credentials, initialize_app, db
+from kivymd.uix.textfield import MDTextField, MDTextFieldRound, MDTextFieldRect
 from plyer import notification, utils
+from firebase_admin import credentials, initialize_app, db
 
 # keyboard monitor and sensor
 Window.keyboard_anim_args = {"d": .2, "t": "linear"}
@@ -44,7 +45,21 @@ if utils.platform == 'win':
     os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'
 
 
+class Cool(CircularRippleBehavior, AsyncImage):
+    def __init__(self, **kwargs):
+        self.ripple_scale = 0.85
+        super().__init__(**kwargs)
+
+
 class category(MDCard):
+    pass
+
+
+class Front_shop(MDCard):
+    pass
+
+
+class Shops(MDCard):
     pass
 
 
@@ -64,6 +79,10 @@ class phone_dialog(MDDialog):
     pass
 
 
+class Shop_image(AsyncImage):
+    pass
+
+
 class Item(OneLineListItem):
     divider = None
 
@@ -72,7 +91,23 @@ class last_dialog(MDBoxLayout):
     pass
 
 
-class NumberOnly(MDTextField):
+class NumberOnlyField(MDTextField):
+    pat = re.compile('[^0-9]')
+
+    def insert_text(self, substring, from_undo=False):
+
+        pat = self.pat
+
+        if "." in self.text:
+            s = re.sub(pat, "", substring)
+
+        else:
+            s = ".".join([re.sub(pat, "", s) for s in substring.split(".", 1)])
+
+        return super(NumberOnlyField, self).insert_text(s, from_undo=from_undo)
+
+
+class NumberOnly(MDTextFieldRect):
     pat = re.compile('[^0-9]')
 
     def insert_text(self, substring, from_undo=False):
@@ -117,6 +152,7 @@ class MainApp(MDApp):
     size_y = NumericProperty(0)
     menu = ObjectProperty(None)
     count = NumericProperty(0)
+    count_update = NumericProperty(0)
     dialog = None
     dialog_phone = None
     dialog_last = None
@@ -132,6 +168,7 @@ class MainApp(MDApp):
     quantity = StringProperty("")
     total_amount = NumericProperty(0)
     order_number = StringProperty("0")
+    category_tp = StringProperty("")
 
     # MATH
     calculator = StringProperty("0")
@@ -142,66 +179,36 @@ class MainApp(MDApp):
     admin_phone = StringProperty("")
     admin_password = StringProperty("")
     admin_true = BooleanProperty(False)
-    admin_product = StringProperty("")
+    admin_product_image = StringProperty("images/picture.png")
+    admin_product_name = StringProperty("")
+    admin_product_price = StringProperty("")
+    admin_product_id = StringProperty("")
+    admin_product_url = StringProperty("")
 
     # DATABASE
-    cred = credentials.Certificate("farmzon-abdcb-c4c57249e43b.json")
-    if number_of_app.times == 0:
-        x = random
-        default_app = initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
-        print(default_app.name)
-        number_of_app.times = 1 + number_of_app.times
-    else:
-        default_app = initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'},
-                                     name="default" + str(number_of_app.times))
-        print(default_app.name)
-        number_of_app.times += 1
-    pn_client = PushNotifications(
-        instance_id='4eacff80-61d8-48d7-ba72-9e7aede4119c',
-        secret_key='4A9C78664B4FCC25397DD2F780028D9967F69BA4229736B49420727081646EFC',
-    )
-
-    def __init__(self, **kwargs):
-        super().__init__()
-        self.file_manager = MDFileManager()
-        self.file_manager.exit_manager = self.exit_manager
-        self.file_manager.select_path = self.select_path
-        self.file_manager.preview = True
-        self.file_manager.previous = True
-
-    def play(self):
-        sound = SoundLoader.load('no.wav')
-        if sound:
-            print("Sound found at %s" % sound.source)
-            print("Sound is %.3f seconds" % sound.length)
-            sound.play()
+    def database(self):
+        cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
+        if number_of_app.times == 0:
+            x = random
+            default_app = initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
+            print(default_app.name)
+            number_of_app.times = 1 + number_of_app.times
+        else:
+            default_app = initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'},
+                                         name="default" + str(number_of_app.times))
+            print(default_app.name)
+            number_of_app.times += 1
 
     def stream_handler(self, message):
         print(message.data)
         print(utils.platform)
-        kwargs = {'title': 'New follower', 'message': 'you have new follower'}
         if True:
             print("hello")
-            response = self.pn_client.publish(
-                interests=["hello"],
-                publish_body={
-                    'apns': {
-                        'apns': {
-                            'alert': 'Hello',
-                        },
-                    },
-                    'fcm': {
-                        'notification': {
-                            'title': 'Hello',
-                            'body': 'Hello , world',
-                        },
-                    },
-                },
-            )
 
             return notification.notify(title='New order', message='you have new order!')
 
     def notifi(self):
+        self.database()
         try:
             my_stream = db.reference("Yummy").child("Orders").listen(self.stream_handler)
         except:
@@ -217,15 +224,15 @@ class MainApp(MDApp):
         ui.close()
 
     def admin_memory(self):
-        file_size = os.path.getsize("admin.txt")
+        file_size = os.path.getsize("credential/admin.txt")
         if file_size == 0:
             sm = self.root
             sm.current = "login"
         else:
             sm = self.root
             self.admin_true = True
-            file1 = open('admin.txt', 'r')
-            file2 = open("admin_info.txt")
+            file1 = open('credential/admin.txt', 'r')
+            file2 = open("credential/admin_info.txt")
             Lines = file1.readlines()
             Lines2 = file2.readlines()
 
@@ -241,6 +248,11 @@ class MainApp(MDApp):
             kamba = threading.Thread(target=self.listen_db)
             kamba.start()
 
+    def actively_reg(self):
+        if self.spin_active:
+            self.spin_active = False
+            toast("Successfully Registered!")
+
     def permision_req(self):
         if utils.platform == 'android':
             from android.permissions import request_permissions, Permission  # todo
@@ -248,32 +260,12 @@ class MainApp(MDApp):
 
     def on_start(self):
         drop_one = self.root.ids.drop_item_one
-        drop_two = self.root.ids.drop_item_two
-        EventLoop.window.bind(on_keyboard=self.hook_keyboard)
-        notification.notify(title="hi", message="me")
         self.menu_fun(drop_one)
-        self.menu_fun(drop_two)
+        EventLoop.window.bind(on_keyboard=self.hook_keyboard)
+        notification.notify(title="Welcome", message="you can also sell and buy!")
         self.permision_req()
-
-        # cards background colors
-
-        price = self.root.ids.price_miho
-        price.md_bg_color = 245 / 255, 0 / 255, 72 / 255, 1
-
-        price_rim = self.root.ids.price_rim
-        price_rim.md_bg_color = 245 / 255, 0 / 255, 72 / 255, 1
-
-        price_juice = self.root.ids.price_juice
-        price_juice.md_bg_color = 245 / 255, 0 / 255, 72 / 255, 1
-
-        juice = self.root.ids.juice_carry
-        juice.md_bg_color = 121 / 255, 174 / 255, 141 / 255, 1
-
-        mihogo = self.root.ids.mihogo_carry
-        mihogo.md_bg_color = 60 / 255, 66 / 255, 75 / 255, 1
-
-        logo = self.root.ids.cart
-        logo.md_bg_color = 245 / 255, 0 / 255, 72 / 255, 1
+        self.spin_active = True
+        self.order_spinner2()
 
         order = self.root.ids.order
         order.md_bg_color = 245 / 255, 0 / 255, 72 / 255, 1
@@ -390,6 +382,20 @@ class MainApp(MDApp):
             self.kill_phone()
             return True
 
+    def phone_number_check_admin(self, phone):
+        new_number = ""
+        for i in range(phone.__len__()):
+            if i == 0:
+                pass
+            else:
+                new_number = new_number + phone[i]
+        number = "+255" + new_number
+        if not carrier._is_mobile(number_type(phonenumbers.parse(number))):
+            toast("Please check your phone number!", 1)
+            return False
+        else:
+            return True
+
     def kill(self, *kwargs):
         self.dialog.dismiss()
 
@@ -404,10 +410,22 @@ class MainApp(MDApp):
                                                                                            "Total amount:",
               self.total_amount, '\n'
                                  "Phone number:", phone)
-        thread = threading.Thread(target=DB.upload_data,
-                                  args=(DB(), phone, self.location, quantity, self.total_amount, product))
-        thread.start()
-        toast("Ordered successfully!", 10)
+        if self.category_tp != "admin":
+            thread = threading.Thread(target=DB.upload_data,
+                                      args=(
+                                          DB(), self.admin_phone, phone, self.location, quantity, self.total_amount,
+                                          product))
+            thread.start()
+            thread.join()
+            toast("Ordered successfully!", 10)
+        else:
+            thread = threading.Thread(target=DB.upload_data_admin,
+                                      args=(
+                                          DB(), self.admin_phone, phone, self.location, quantity, self.total_amount,
+                                          product))
+            thread.start()
+            thread.join()
+            toast("Ordered successfully!", 10)
 
     def hook_keyboard(self, window, key, *largs):
         sm = self.root
@@ -452,7 +470,7 @@ class MainApp(MDApp):
         else:
             self.total_amount = self.calculator2 = str(float(mingapi) * 500)
 
-    def callculator_rim(self, mingapi):
+    def callculator_rim(self, mingapi, price):
         identity = self.root.ids.rim_mingap
         self.calculator = mingapi + "0"
         if mingapi == "":
@@ -460,7 +478,7 @@ class MainApp(MDApp):
         elif mingapi == '.':
             identity.text = "1"
         else:
-            self.total_amount = self.calculator = str(float(mingapi) * 50)
+            self.total_amount = self.calculator = str(float(mingapi) * int(price))
 
     def callback(self, button):
         self.menu.caller = button
@@ -470,6 +488,12 @@ class MainApp(MDApp):
 
     def order_spinner2(self):
         self.spin_active = True
+        try:
+            thread = threading.Thread(target=self.front_shop)
+            thread.start()
+        except:
+            toast("no internet!")
+            self.spin_active = False
 
     def add_order(self):
         try:
@@ -495,6 +519,7 @@ class MainApp(MDApp):
                     food_categories.id = y
                     del_btn.id = y
                     food_categories.md_bg_color = 121 / 255, 174 / 255, 141 / 255, 1
+                    food_categories.add_widget(Labels(text="Admin-phone:" + " " + str(x['Admin phone'])))
                     food_categories.add_widget(Labels(text="Phone:" + " " + y))
                     food_categories.add_widget(MDSeparator(height="5dp"))
                     food_categories.add_widget(Labels(text="Amount:" + " " + " " + str(x['amount'])))
@@ -511,6 +536,99 @@ class MainApp(MDApp):
         except:
             toast("no internet")
             self.spin_active = False
+
+    all_products = {}
+    front_products = {}
+    front_shop_count = 0
+    other_shops = 0
+
+    def other_shop(self):
+        if True:
+            try:
+                if self.other_shops == 0:
+                    self.other_shops = self.other_shops + 1
+                    import firebase_admin
+                    firebase_admin._apps.clear()
+                    from firebase_admin import credentials, initialize_app, db
+                    if not firebase_admin._apps:
+                        shop = self.root.ids.other_shop
+                        cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
+                        initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
+                        store = db.reference("Yummy").child("Products")
+                        stores = store.get()
+                        self.all_products = stores
+                        for y, x in stores.items():
+                            self.admin_product_name = x["product_name"]
+                            self.admin_phone = x["admin_phone"]
+                            self.admin_product_url = x["image_url"]
+                            self.admin_product_price = x["product_price"]
+
+                            other_shops = Shops(on_release=self.selling_other)
+                            other_shops.add_widget(Labels(text=self.admin_product_name))
+                            other_shops.add_widget(Shop_image(source=self.admin_product_url))
+                            other_shops.id = y
+                            shop.add_widget(other_shops)
+            except:
+                toast("no internet!")
+                self.spin_active = False
+
+    def selling_other(self, instance):
+        print(instance.id)
+        product = instance.id
+        self.admin_phone = self.all_products[product]["admin_phone"]
+        self.admin_product_url = self.all_products[product]["image_url"]
+        self.admin_product_name = self.all_products[product]["product_name"]
+        self.admin_product_price = self.all_products[product]["product_price"]
+        sm = self.root
+        sm.current = "selling"
+
+    def front_shop(self):
+        if True:
+            try:
+                import firebase_admin
+                firebase_admin._apps.clear()
+                from firebase_admin import credentials, initialize_app, db
+                if not firebase_admin._apps:
+                    shop = self.root.ids.front_shop
+                    cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
+                    initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
+                    store = db.reference("Yummy").child("Products_admin")
+                    stores = store.get()
+                    self.front_products = stores
+                    for y, x in stores.items():
+                        self.admin_product_name = x["product_name"]
+                        self.admin_phone = x["admin_phone"]
+                        self.admin_product_url = x["image_url"]
+                        self.admin_product_price = x["product_price"]
+
+                        front_shops = Front_shop(on_release=self.selling_front)
+                        layout = FloatLayout()
+                        layout.add_widget(Labels(text=self.admin_product_name,
+                                                 pos_hint={"center_x": .5, "center_y": .2},
+                                                 halign="center"))
+                        layout.add_widget(Cool(source=self.admin_product_url))
+                        front_shops.add_widget(layout)
+                        front_shops.id = y
+                        shop.add_widget(front_shops)
+                        self.spin_active = False
+                else:
+                    print("fuck!")
+
+            except:
+                toast("no internet!")
+                self.spin_active = False
+
+    def selling_front(self, instance):
+        print(instance.id)
+        self.count = self.count + 1
+        self.category_tp = "admin"
+        product = instance.id
+        self.admin_phone = self.front_products[product]["admin_phone"]
+        self.admin_product_url = self.front_products[product]["image_url"]
+        self.admin_product_name = self.front_products[product]["product_name"]
+        self.admin_product_price = self.front_products[product]["product_price"]
+        sm = self.root
+        sm.current = "selling"
 
     def success(self, *kwargs):
         self.refresh()
@@ -579,6 +697,57 @@ class MainApp(MDApp):
                 self.spin_active = False
                 toast("oops! phone number or password in correct or internet connection")
 
+    # XXX---------CUSTOMER--------------XXXXXXX
+
+    def id_generator(self):
+        not_allowed = ".-:"
+        date1 = datetime.datetime.now()
+        date, time = id = str(date1).split(" ")
+        self.admin_product_id = date + time
+        product_id = ""
+        for i in range(len(self.admin_product_id)):
+            if self.admin_product_id[i] not in not_allowed:
+                product_id = self.admin_product_id[i] + product_id
+        id = self.admin_product_id = product_id
+        print(id)
+        return self.admin_product_id
+
+    def get_info(self, phone, phone_other, name, price, product_name, image_path, password, category):
+        if phone != "" and self.phone_number_check_admin(phone):
+            if name != "" and name.isalpha() and price != "" and password != "":
+                self.admin_phone = phone
+                self.admin_password = password
+                self.admin_name = name
+                self.admin_product_image = image_path
+                self.admin_product_price = price
+                self.admin_product_name = product_name
+                self.admin_product_id = self.id_generator()
+                cate = category
+                print(phone, name, price, product_name, image_path, password, self.admin_product_id)
+                try:
+                    thread = threading.Thread(target=self.transporter, args=(
+                        phone, phone_other, name, price, product_name, image_path, password, self.admin_product_id,
+                        cate))
+                    thread.start()
+                except:
+                    toast("no internet")
+            else:
+                toast("check your info well")
+                self.spin_active = False
+
+        else:
+            toast("check your mobile number")
+            self.spin_active = False
+
+    def transporter(self, phone, phone_other, name, price, product_name, image_path, password, id, cate):
+        thread = threading.Thread(target=DB.upload_product_image, args=(
+            DB(), cate, image_path, phone, phone_other, name, price, product_name, password, id))
+        thread.start()
+
+        thread.join()
+
+        self.actively_reg()
+
     def listen_db(self):
         try:
             print("i am listening......")
@@ -589,11 +758,19 @@ class MainApp(MDApp):
     def Permission(self, android=None):
         if self.counter_image <= 0:
             if utils.platform == 'android':
-                from gallary import Gambler as GA
-                Clock.schedule_once(GA.user_select_image, 0)
-                self.admin_product = str(GA.path_of_picture)
-                image = self.root.ids.product_image
-                image.source = self.admin_product
+                if self.count_update == 0:
+                    from gallary import Gambler as GA
+                    Clock.schedule_once(GA.user_select_image, 0)
+                    self.admin_product_image = GA.path_of_picture
+                    img = self.root.ids.product_image
+                    img.source = GA.path_of_picture
+                    self.count_update += self.count_update + 1
+                else:
+                    from gallary import Gambler as GA
+                    self.count_update = self.count_update - 1
+                    self.admin_product_image = GA.path_of_picture
+                    img = self.root.ids.product_image
+                    img.source = GA.path_of_picture
 
             else:
                 self.counter_image = self.counter_image + 1
@@ -611,10 +788,10 @@ class MainApp(MDApp):
             pass
 
     def build(self):
-        self.theme_cls.theme_style = "Dark"
-        self.theme_cls.primary_palette = "DeepPurple"
+        self.theme_cls.theme_style = "Light"
+        self.theme_cls.primary_palette = "DeepOrange"
         self.theme_cls.accent = "Brown"
-        # Window.size = (360, 640)
+        Window.size = (360, 640)
         self.size_x, self.size_y = Window.size
         self.title = "yummy"
 

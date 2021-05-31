@@ -5,114 +5,80 @@ ScreenManager:
     MDScreen:
         id: test
         name:"one"
-        md_bg_color:60/255, 66/255, 75/255, 1
-        FloatLayout:
+        #md_bg_color:60/255, 66/255, 75/255, 1
+        FitImage:
+            source:"bgimages/Home.jpg"
+        MDSpinner:
+            size_hint: None, None
+            size: dp(46), dp(46)
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            active: app.spin_active
+        MDBoxLayout:
+            orientation:"vertical"
+            spacing:"10dp"
             MDIconButton:
                 icon:"account"
                 pos_hint: {"center_x": .9, "center_y": .9}
                 on_release:
                     app.admin_memory()
-        MDCard:
-            id:cart
-            #md_bg_color: self.theme_cls.primary_color
-            size_hint: None, None
-            border_radius: 20
-            radius: [15]
-            border_radius: "12dp"
-            size: 250, "99dp"
-            pos_hint: {"center_x": .5, "center_y": .9}
-            MDLabel:
-                text:"yummy"
-                halign:"center"
-                bold:True
-                height: self.texture_size[1]
-        MDCard:
-            md_bg_color: self.theme_cls.primary_color
-            size_hint: None, None
-            border_radius: 20
-            radius: [15]
-            border_radius: "12dp"
-            size: 200, "109dp"
-            pos_hint: {"center_x": .5, "center_y": .7}
-            elevation:10
-            on_release:
-                manager.current = "mihogo"
-                app.count = app.count + 1
-            FloatLayout:
-                MDIconButton:
-                    icon: "bw.png"
-                    pos_hint: {"center_x": .5, "center_y": .75}
-                MDLabel:
-                    text:"mihogo"
-                    halign:"center"
-                    bold:True
-                    pos_hint: {"center_x": .5, "center_y": .4}
-        MDCard:
-            id:car
-            md_bg_color: self.theme_cls.primary_color
-            size_hint: None, None
-            border_radius: 20
-            radius: [15]
-            border_radius: "12dp"
-            size: 200, "109dp"
-            pos_hint: {"center_x": .5, "center_y": .5}
-            elevation:10
-            on_release:
-                manager.current = "juice"
-                app.count = app.count + 1
-                app.play()
-            FloatLayout:
-                MDIconButton:
-                    icon: "juice.png"
-                    pos_hint: {"center_x": .5, "center_y": .75}
-                MDLabel:
-                    text:"juice"
-                    halign:"center"
-                    bold:True
-                    pos_hint: {"center_x": .5, "center_y": .4}
+            MDCard:
+                md_bg_color: self.theme_cls.primary_color
+                size_hint: None, None
+                border_radius: 20
+                radius: [15]
+                border_radius: "12dp"
+                size: app.size_x/4, "70dp"
+                size_hint_x: .5
+                pos_hint: {"center_x": .5, "center_y": .83}
+                on_release:
+                    manager.current = "other_shops"
+                    app.count = app.count + 1
+                    app.other_shop()
+                FloatLayout:
+                    MDIconButton:
+                        icon: "shopping"
+                        pos_hint: {"center_x": .5, "center_y": .75}
+                    MDLabel:
+                        text:"other shops"
+                        halign:"center"
+                        bold:True
+                        pos_hint: {"center_x": .5, "center_y": .3}
+            ScrollView:
+                id: scroll
+                MDGridLayout:
+                    cols: 3
+                    adaptive_height: True
+                    padding: dp(10), dp(4)
+                    spacing: dp(30)
+                    id:front_shop
 
-        MDCard:
-            md_bg_color: self.theme_cls.primary_color
-            size_hint: None, None
-            border_radius: 20
-            radius: [15]
-            border_radius: "12dp"
-            size: 200, "109dp"
-            pos_hint: {"center_x": .5, "center_y": .3}
-            elevation:10
-            on_release:
-                manager.current = "rim"
-                app.count = app.count + 1
-            FloatLayout:
-                MDIconButton:
-                    icon: "rim.png"
-                    pos_hint: {"center_x": .5, "center_y": .75}
-                MDLabel:
-                    text:"Rim"
-                    halign:"center"
-                    bold:True
-                    pos_hint: {"center_x": .5, "center_y": .4}
+
     MDScreen:
-        name:"mihogo"
-        md_bg_color:60/255, 66/255, 75/255, 1
+        name:"selling"
+        FitImage:
+            source:"bgimages/icons/plain.jpg"
         FloatLayout:
             MDCard
-                id:mihogo_carry
+                id:image_carry
+                md_bg_color: self.theme_cls.primary_color
                 size_hint: None, None
                 border_radius: 20
                 radius: [15]
                 border_radius: "12dp"
                 size: app.size_x - 100, "180dp"
+                elevation:3
                 pos_hint: {"center_x": .5, "center_y": .8}
-                FitImage:
-                    source:"colorm.png"
+                Shop_image:
+                    source:app.admin_product_url
             MDCard:
-                id:price_miho
+                id:price_carry
+                md_bg_color: self.theme_cls.primary_color
                 size_hint: None, None
                 border_radius: 20
                 radius: [15]
                 border_radius: "12dp"
-                size: 145, "80dp"
+                size: app.size_x/3, "80dp"
+                elevation:3
                 pos_hint: {"center_x": .5, "center_y": .55}
                 MDLabel:
                     text:"Price:"
@@ -120,29 +86,30 @@ ScreenManager:
                     bold:True
                     pos_hint: {"center_x": .35, "center_y": .5}
                 MDLabel:
-                    text:"150/tsh"
+                    text:app.admin_product_price
                     halign:"center"
                     bold:True
                     pos_hint: {"center_x": .4, "center_y": .5}
                     elevation: 3
             NumberOnly:
-                id:mingap
-                size_hint: .2, None
+                id:quantity
+                size_hint: .4, None
                 pos_hint: {"center_x": .5, "center_y": .4}
                 height: "30dp"
                 hint_text:"idadi"
-                color_mode:"accent"
-                theme_text_color: "ContrastParentBackground"
-                text_color: 0, 0, 0, 0
+                color_mode:"custom"
+                #theme_text_color: "ContrastParentBackground"
+                fill_color: 1, 1, 0, 1
                 on_text:
-                    app.callculator(mingap.text)
+                    app.callculator_rim(quantity.text, app.admin_product_price)
             MDLabel:
                 text:"total price" +" "+ app.calculator + "/tsh"
                 halign:"center"
                 bold:True
-                pos_hint: {'center_x': .5, 'center_y': .35}
+                pos_hint: {'center_x': .5, 'center_y': .33}
             MDDropDownItem:
                 id:drop_item_one
+                md_bg_color:self.theme_cls.primary_color
                 pos_hint: {'center_x': .5, 'center_y': .25}
                 text: app.menu_text
                 on_release:
@@ -151,134 +118,43 @@ ScreenManager:
                 text: "Order"
                 pos_hint: {'center_x': .5, 'center_y': .13}
                 on_release:
-                    app.product_name = "mihogo"
-                    app.quantity = mingap.text
-                    app.phone_number_dialog()
-    MDScreen:
-        name:"juice"
-        md_bg_color:60/255, 66/255, 75/255, 1
-        FloatLayout:
-            MDCard
-                id:juice_carry
-                size_hint: None, None
-                border_radius: 20
-                radius: [15]
-                elevation: 9
-                border_radius: "12dp"
-                size: app.size_x - 100, "180dp"
-                pos_hint: {"center_x": .5, "center_y": .8}
-                Image:
-                    source:"juice.png"
-            MDCard:
-                id:price_juice
-                size_hint: None, None
-                border_radius: 20
-                radius: [15]
-                border_radius: "12dp"
-                size: 145, "80dp"
-                pos_hint: {"center_x": .5, "center_y": .55}
-                MDLabel:
-                    text:"Price:"
-                    halign:"center"
-                    bold:True
-                    pos_hint: {"center_x": .35, "center_y": .5}
-                MDLabel:
-                    text:"500/tsh"
-                    halign:"center"
-                    bold:True
-                    pos_hint: {"center_x": .4, "center_y": .5}
-                    elevation: 3
-            NumberOnly:
-                id:mingap_juice
-                size_hint: .2, None
-                pos_hint: {"center_x": .5, "center_y": .4}
-                height: "30dp"
-                hint_text:"idadi"
-                color_mode:"accent"
-                theme_text_color: "ContrastParentBackground"
-                text_color: 0, 0, 0, 0
-                on_text:
-                    app.callculator2(mingap_juice.text)
-            MDLabel:
-                text:"total price" +" "+ app.calculator2 + "/tsh"
-                halign:"center"
-                bold:True
-                pos_hint: {'center_x': .5, 'center_y': .35}
-            MDDropDownItem:
-                id:drop_item_two
-                pos_hint: {'center_x': .5, 'center_y': .25}
-                text: 'Your Location'
-                on_release:
-                    app.callback(drop_item_two)
-            MDRoundFlatButton:
-                text: "Order"
-                pos_hint: {'center_x': .5, 'center_y': .13}
-                on_release:
-                    app.product_name = "juice"
-                    app.quantity = mingap_juice.text
-                    app.phone_number_dialog()
-    MDScreen:
-        name:"rim"
-        md_bg_color:60/255, 66/255, 75/255, 1
-        FloatLayout:
-            MDCard
-                id:rim_carry
-                size_hint: None, None
-                border_radius: 20
-                radius: [15]
-                border_radius: "12dp"
-                size: app.size_x - 100, "180dp"
-                pos_hint: {"center_x": .5, "center_y": .8}
-                FitImage:
-                    source:"rim.png"
-            MDCard:
-                id:price_rim
-                size_hint: None, None
-                border_radius: 20
-                radius: [15]
-                border_radius: "12dp"
-                size: 145, "80dp"
-                pos_hint: {"center_x": .5, "center_y": .55}
-                MDLabel:
-                    text:"Price:"
-                    halign:"center"
-                    bold:True
-                    pos_hint: {"center_x": .35, "center_y": .5}
-                MDLabel:
-                    text:"50/tsh"
-                    halign:"center"
-                    bold:True
-                    pos_hint: {"center_x": .4, "center_y": .5}
-                    elevation: 3
-            NumberOnly:
-                id:rim_mingap
-                size_hint: .2, None
-                pos_hint: {"center_x": .5, "center_y": .4}
-                height: "30dp"
-                hint_text:"idadi"
-                color_mode:"accent"
-                theme_text_color: "ContrastParentBackground"
-                text_color: 0, 0, 0, 0
-                on_text:
-                    app.callculator_rim(rim_mingap.text)
-            MDLabel:
-                text:"total price" +" "+ app.calculator + "/tsh"
-                halign:"center"
-                bold:True
-                pos_hint: {'center_x': .5, 'center_y': .35}
-            MDDropDownItem:
-                id:drop_item_one
-                pos_hint: {'center_x': .5, 'center_y': .25}
-                text: app.menu_text
-                on_release:
-                    app.callback(drop_item_one)
-            MDRoundFlatButton:
-                text: "Order"
-                pos_hint: {'center_x': .5, 'center_y': .13}
-                on_release:
-                    app.product_name = "Rim"
+                    app.product_name = app.admin_product_name
                     app.quantity = rim_mingap.text
                     app.phone_number_dialog()
+
+    MDScreen:
+        name: "other_shops"
+        FitImage:
+            source:"bgimages/icons/plain.jpg"
+        MDBoxLayout:
+            orientation:"vertical"
+            MDCard:
+                md_bg_color: self.theme_cls.primary_color
+                size_hint: None, None
+                border_radius: 20
+                radius: [15]
+                border_radius: "12dp"
+                size: app.size_x/.5, "70dp"
+                size_hint_x: .5
+                pos_hint: {"center_x": .5, "center_y": .85}
+                FloatLayout:
+                    MDIconButton:
+                        icon: "shopping"
+                        pos_hint: {"center_x": .5, "center_y": .75}
+                    MDLabel:
+                        text:"Shop anything!"
+                        halign:"center"
+                        bold:True
+                        pos_hint: {"center_x": .5, "center_y": .3}
+            ScrollView:
+                id: scroll
+                MDGridLayout:
+                    cols: 2
+                    adaptive_height: True
+                    padding: dp(4), dp(4)
+                    spacing: dp(10)
+                    id:other_shop
+
     MDScreen:
         name:"login"
         md_bg_color:60/255, 66/255, 75/255, 1
@@ -365,6 +241,8 @@ ScreenManager:
                 text: 'Products'
                 icon: 'food'
                 name:"product_detail"
+                FitImage:
+                    source:"bgimages/icons/plain.jpg"
                 FloatLayout:
                     orientation:"vertical"
                     ScrollView:
@@ -373,10 +251,6 @@ ScreenManager:
                             adaptive_height: True
                             padding: dp(9), dp(5)
                             spacing: dp(15)
-                            MDIconButton:
-                                icon:"arrow-left"
-                                on_release:
-                                    app.Screen_changer("admin_main_products")
                             MDCard:
                                 size_hint: None, None
                                 size: app.size_x - 15, "180dp"
@@ -384,52 +258,70 @@ ScreenManager:
                                 pos_hint: {"center_x": 1, "center_y": .8}
                                 elevation:"0"
                                 on_release:
-                                    # app.file_manager_open()
-                                    manager.current="images"
                                     app.Permission()
                                 AsyncImage:
                                     id:product_image
-                                    source: 'picture.png'
+                                    source: app.admin_product_image
                                     size: self.texture_size
                                     allow_stretch: False
                                     keep_ratio: False
-                            MDLabel:
-                                halign:"center"
-                                text:"Full sack: 90kg"
-                            MDLabel:
-                                halign:"center"
-                                text:"Half sack: 45kg"
                             MDTextField:
                                 id:product_name
                                 hint_text: "Product name:"
-                                helper_text: "Example: Maindi Mazuri"
+                                helper_text: "Example: juice"
                                 helper_text_mode: "persistent"
-                            MDTextField:
+                            NumberOnlyField:
                                 id:product_amount
                                 hint_text: "Product price:"
                                 helper_text: "Example:100"
                                 helper_text_mode: "persistent"
                             MDTextField:
-                                id:product_amount
+                                id:customer_name
                                 hint_text: "Admin name:"
-                                helper_text: "Example:100"
+                                helper_text: "Example:peter"
                                 helper_text_mode: "persistent"
-                            NumberOnly:
-                                id:product_amount
+                            MDTextField:
+                                id:customer_password
+                                hint_text: "Password:"
+                                helper_text_mode: "persistent"
+                            NumberOnlyField:
+                                id:customer_phone
                                 hint_text: "Admin phone:"
-                                helper_text: "Example:100"
+                                helper_text: "Example:07xxx or 06xxxx"
                                 helper_text_mode: "persistent"
-                            MDRoundFlatButton:
+                            NumberOnlyField:
+                                id:customer_phone_o
+                                hint_text: "Other phone:"
+                                helper_text: "Example:07xxx or 06xxxx"
+                                helper_text_mode: "persistent"
+                            MDTextField:
+                                id:category
+                                hint_text: "Category"
+                                helper_text: "category is admin or customer"
+                                helper_text_mode: "persistent"
+                            MDLabel:
+                                text:""
+                                halign:"center"
+                            MDFillRoundFlatButton:
                                 text:"SUBMIT"
+                                text_color: 1, 1, 1, 1
                                 pos_hint: {'center_x': 1, 'center_y': .2}
                                 size_hint_x: .7
+                                on_release:
+                                    app.spin_active = True
+                                    app.get_info(customer_phone.text, customer_phone_o.text, customer_name.text, product_amount.text, product_name.text, product_image.source, customer_password.text, category.text)
+                    MDSpinner:
+                        size_hint: None, None
+                        size: dp(46), dp(46)
+                        pos_hint: {'center_x': .5, 'center_y': .5}
+                        active: app.spin_active
             MDBottomNavigationItem:
                 name: 'admin_info'
                 text: 'Admins'
                 icon: 'account-box'
 
 <phone_dialog>
-    NumberOnly:
+    NumberOnlyField:
         id:phone
         hint_text:"Phone number:"
         size_hint: .8, None
@@ -478,10 +370,37 @@ ScreenManager:
     border_color: 1
     radius: [15]
     size_hint: None, None
-    size: app.size_x - 15, "250dp"
+    size: app.size_x - 15, app.size_y/2
     focus_behavior: False
     ripple_behavior: True
     elevation: "6"
+
+<Shops>:
+    orientation: "vertical"
+    padding: "10dp"
+    spacing: "5dp"
+    border_radius: 20
+    border_color: 1
+    radius: [15]
+    size_hint: None, None
+    size: app.size_x/2.2, app.size_y/2.5
+    focus_behavior: False
+    ripple_behavior: True
+    elevation: "6"
+
+<Front_shop>:
+    md_bg_color: self.theme_cls.primary_color
+    size_hint: None, None
+    border_radius: 20
+    radius: [15]
+    border_radius: "12dp"
+    size: app.size_x/3, "100dp"
+    size_hint_x: .5
+
+<Cool>:
+    size_hint: None, None
+    size: "50dp", "50dp"
+    pos_hint: {"center_x": .5, "center_y": .7}
 
 <category_gal>:
     orientation: "vertical"

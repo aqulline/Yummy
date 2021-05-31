@@ -1,5 +1,4 @@
 from kivy.logger import Logger
-from kivy.clock import Clock
 from kivy.properties import StringProperty
 
 from jnius import autoclass
@@ -30,7 +29,7 @@ Activity = autoclass('android.app.Activity')
 # Not sure what this means
 # public static final int RESULT_FIRST_USER   = 1;
 class Gambler:
-    path_of_picture = StringProperty("")
+    path_of_picture = "picture.png"
 
     def user_select_image(self):
         """Open Gallery Activity and call callback with absolute image filepath of image user selected.
@@ -51,6 +50,8 @@ class Gambler:
 
             if result_code == Activity.RESULT_CANCELED:
                 # Clock.schedule_once(lambda dt: callback(None), 0)
+
+                activity.unbind(on_activity_result=on_activity_result)
                 return
 
             if result_code != Activity.RESULT_OK:
@@ -77,6 +78,10 @@ class Gambler:
             print(picturePath)
             Gambler.path_of_picture = picturePath
 
+            activity.unbind(on_activity_result=on_activity_result)
+            from main import update
+            update.picture = Gambler.path_of_picture
+
         # See: http://pyjnius.readthedocs.org/en/latest/android.html
         activity.bind(on_activity_result=on_activity_result)
 
@@ -92,3 +97,6 @@ class Gambler:
         currentActivity.startActivityForResult(intent, RESULT_LOAD_IMAGE)
 
         return True
+
+
+

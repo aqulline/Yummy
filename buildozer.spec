@@ -36,17 +36,17 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3, kivy==2.0.0rc4, kivymd==0.104.1, hostpython3, android, requests, openssl, urllib3, chardet, idna, jwt, cryptography, pyparsing, firebase_admin, PIL, google-auth, cachetools, pyasn1, pyasn1_modules, rsa, google-api-python-client, httplib2, plyer==1.4.3, pyjnius, pusher_push_notifications, phonenumbers, jnius
+requirements = python3, kivy==2.0.0rc4, kivymd==0.104.1, hostpython3, android, requests, openssl, urllib3, chardet, idna, jwt, cryptography, pyparsing, firebase_admin, PIL, google-auth, cachetools, pyasn1, pyasn1_modules, rsa, google-api-python-client, google-cloud-storage, google-cloud-firestore, google-api-core,  protobuf, cachecontrol, gcloud, google-cloud, httplib2, plyer==1.4.3, pyjnius, phonenumbers, jnius, requests-toolbelt, oauth2client, python_jwt, jwcrypto, pytz
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
 # requirements.source.kivy = ../../kivy
 
 # (str) Presplash of the application
-# presplash.filename = front.jpg
+presplash.filename = bgimages/icons/Starting.jpg
 
 # (str) Icon of the application
-# icon.filename = icon.png
+icon.filename = bgimages/icons/Icon.jpg
 
 # (str) Supported orientation (one of landscape, sensorLandscape, portrait or all)
 orientation = portrait
@@ -79,7 +79,7 @@ fullscreen = 1
 # red, blue, green, black, white, gray, cyan, magenta, yellow, lightgray,
 # darkgray, grey, lightgrey, darkgrey, aqua, fuchsia, lime, maroon, navy,
 # olive, purple, silver, teal.
-#android.presplash_color = #FFFFFF
+android.presplash_color = #FF7032
 
 # (string) Presplash animation using Lottie format.
 # see https://lottiefiles.com/ for examples and https://airbnb.design/lottie/

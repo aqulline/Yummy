@@ -19,3 +19,5 @@ day1, time = str(timedelta).split(",")
 num, wrd = str(day1).split(" ")
 new = wrd + "_" + num
 print(new, name)
+date, time2 = id = str(date1).split(" ")
+print(">>", date+time2)
