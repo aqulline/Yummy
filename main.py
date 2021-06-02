@@ -9,7 +9,6 @@ from kivy.uix.image import AsyncImage
 from kivy.base import EventLoop
 
 import phonenumbers
-import random
 import datetime
 import re
 import threading
@@ -25,13 +24,12 @@ from kivy.clock import Clock
 from kivymd.uix.boxlayout import MDBoxLayout
 from phonenumbers import carrier
 from phonenumbers.phonenumberutil import number_type
-from kivymd.uix.button import MDFlatButton, MDRaisedButton, MDIconButton
+from kivymd.uix.button import MDFlatButton, MDRaisedButton, MDIconButton, MDTextButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.list import OneLineListItem
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.textfield import MDTextField, MDTextFieldRound, MDTextFieldRect
 from plyer import notification, utils
-from firebase_admin import credentials, initialize_app, db
 
 # keyboard monitor and sensor
 Window.keyboard_anim_args = {"d": .2, "t": "linear"}
@@ -160,6 +158,7 @@ class MainApp(MDApp):
     counter_image = NumericProperty(0)
     spin_active = BooleanProperty(False)
     menu_text = StringProperty("Your Location")
+    loading = StringProperty("")
 
     # Business
     product_name = StringProperty("")
@@ -186,18 +185,6 @@ class MainApp(MDApp):
     admin_product_url = StringProperty("")
 
     # DATABASE
-    def database(self):
-        cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
-        if number_of_app.times == 0:
-            x = random
-            default_app = initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
-            print(default_app.name)
-            number_of_app.times = 1 + number_of_app.times
-        else:
-            default_app = initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'},
-                                         name="default" + str(number_of_app.times))
-            print(default_app.name)
-            number_of_app.times += 1
 
     def stream_handler(self, message):
         print(message.data)
@@ -207,12 +194,18 @@ class MainApp(MDApp):
 
             return notification.notify(title='New order', message='you have new order!')
 
-    def notifi(self):
-        self.database()
+    def notifi(self, phone):
         try:
-            my_stream = db.reference("Yummy").child("Orders").listen(self.stream_handler)
+            import firebase_admin
+            firebase_admin._apps.clear()
+            from firebase_admin import credentials, initialize_app, db
+            id = datetime.datetime.now()
+            cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
+            initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'}, name=str(id))
+
+            my_stream = db.reference("Yummy").child("Admin").child(phone).child("Orders").listen(self.stream_handler)
         except:
-            pass
+            print("poor me")
 
     def remember_me_admin(self, user, password, name):
         with open("admin.txt", "w") as fl:
@@ -243,9 +236,9 @@ class MainApp(MDApp):
             self.Signing_in_admin(self.admin_phone, self.admin_password)
             sm.current = "admin_main"
             self.count += 1
-            thread = threading.Thread(target=self.notifi)
+            thread = threading.Thread(target=self.notifi, args=self.admin_phone)
             thread.start()
-            kamba = threading.Thread(target=self.listen_db)
+            kamba = threading.Thread(target=self.listen_db, args=self.admin_phone)
             kamba.start()
 
     def actively_reg(self):
@@ -258,17 +251,12 @@ class MainApp(MDApp):
             from android.permissions import request_permissions, Permission  # todo
             request_permissions([Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])
 
-    def on_start(self):
-        drop_one = self.root.ids.drop_item_one
-        self.menu_fun(drop_one)
-        EventLoop.window.bind(on_keyboard=self.hook_keyboard)
+    def notifier(self):
         notification.notify(title="Welcome", message="you can also sell and buy!")
-        self.permision_req()
-        self.spin_active = True
-        self.order_spinner2()
 
-        order = self.root.ids.order
-        order.md_bg_color = 245 / 255, 0 / 255, 72 / 255, 1
+    def on_start(self):
+        m = self.root
+        m.current = "one"
 
     def menu_fun(self, identity):
         vimbweta = [
@@ -427,6 +415,9 @@ class MainApp(MDApp):
             thread.join()
             toast("Ordered successfully!", 10)
 
+    def keyboard_hooker(self):
+        EventLoop.window.bind(on_keyboard=self.hook_keyboard)
+
     def hook_keyboard(self, window, key, *largs):
         sm = self.root
         if key == 27 and self.count == 1:
@@ -450,28 +441,8 @@ class MainApp(MDApp):
         print(menu.text)
         self.location = menu.text
 
-    def callculator(self, mingapi):
-        identity = self.root.ids.mingap
-        self.calculator = mingapi + "0"
-        if mingapi == "":
-            pass
-        elif mingapi == '.':
-            identity.text = "1"
-        else:
-            self.total_amount = self.calculator = str(float(mingapi) * 150)
-
-    def callculator2(self, mingapi):
-        self.calculator2 = mingapi + "0"
-        identity = self.root.ids.mingap_juice
-        if mingapi == "":
-            pass
-        elif mingapi == '.':
-            identity.text = '1'
-        else:
-            self.total_amount = self.calculator2 = str(float(mingapi) * 500)
-
     def callculator_rim(self, mingapi, price):
-        identity = self.root.ids.rim_mingap
+        identity = self.root.ids.quantity
         self.calculator = mingapi + "0"
         if mingapi == "":
             pass
@@ -487,49 +458,118 @@ class MainApp(MDApp):
     food_count = 0
 
     def order_spinner2(self):
-        self.spin_active = True
-        try:
-            thread = threading.Thread(target=self.front_shop)
-            thread.start()
-        except:
-            toast("no internet!")
-            self.spin_active = False
+        if self.front_shop_count == 0:
+            identity = self.root.ids.drop_item_one
+            self.menu_fun(identity)
+            self.notifier()
+            self.spin_active = True
+            try:
+                toast("loading please wait...", 10)
+                self.loading = "Loading..."
+                Clock.schedule_once(lambda x: self.front_shop(), 4)
+                # thread = threading.Thread(target=self.front_shop)
+                # thread.start()
+            except:
+                toast("no internet!")
+                self.spin_active = False
+
+    def order_spinner3(self):
+        if self.other_shops == 0:
+            self.spin_active = True
+            try:
+                toast("loading please wait...", 10)
+                Clock.schedule_once(lambda x: self.other_shop(), 4)
+                # thread = threading.Thread(target=self.other_shop)
+                # thread.start()
+            except:
+                toast("no internet!")
+                self.spin_active = False
 
     def add_order(self):
         try:
             if self.food_count == 0:
                 self.food_count = self.food_count + 1
                 food = self.root.ids.food_cat
+                import firebase_admin
+                firebase_admin._apps.clear()
                 from firebase_admin import credentials, initialize_app, db
-                cred = credentials.Certificate("farmzon-abdcb-c4c57249e43b.json")
-                current_time = str(datetime.datetime.now())
-                default_app = initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'},
-                                             name="food" + str(current_time))
-                store = db.reference("Yummy", default_app).child("Orders")
-                stores = store.get()
+                if not firebase_admin._apps:
+                    cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
+                    initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
 
-                count = 0
-                for y, x in stores.items():
-                    food_categories = category()
-                    del_btn = MDIconButton(icon="delete", on_release=self.remove_widgets,
-                                           pos_hint={"center_x": .9, "center_y": .3}, theme_text_color="Custom",
-                                           text_color={60 / 255, 66 / 255, 75 / 255}, user_font_size="26sp")
-                    count += 1
-                    # food_categories.md_bg_color = 245 / 255, 0 / 255, 72 / 255, 1
-                    food_categories.id = y
-                    del_btn.id = y
-                    food_categories.md_bg_color = 121 / 255, 174 / 255, 141 / 255, 1
-                    food_categories.add_widget(Labels(text="Admin-phone:" + " " + str(x['Admin phone'])))
-                    food_categories.add_widget(Labels(text="Phone:" + " " + y))
-                    food_categories.add_widget(MDSeparator(height="5dp"))
-                    food_categories.add_widget(Labels(text="Amount:" + " " + " " + str(x['amount'])))
-                    food_categories.add_widget(Labels(text="Location:" + " " + " " + str(x['location'])))
-                    food_categories.add_widget(Labels(text="Product-Name:" + " " + " " + str(x['product name'])))
-                    food_categories.add_widget(Labels(text="Quantity:" + " " + " " + str(x['quantity'])))
-                    food_categories.add_widget(Labels(text="Time-Ordered:" + " " + " " + str(x['time'])))
-                    food_categories.add_widget(del_btn)
-                    food.add_widget(food_categories)
-                self.order_number = str(count)
+                    store = db.reference("Yummy").child("Orders")
+                    stores = store.get()
+
+                    count = 0
+                    for y, x in stores.items():
+                        food_categories = category()
+                        del_btn = MDIconButton(icon="delete", on_release=self.remove_widgets,
+                                               pos_hint={"center_x": .9, "center_y": .3}, theme_text_color="Custom",
+                                               text_color={60 / 255, 66 / 255, 75 / 255}, user_font_size="26sp")
+                        count += 1
+                        # food_categories.md_bg_color = 245 / 255, 0 / 255, 72 / 255, 1
+                        food_categories.id = y
+                        del_btn.id = y
+                        food_categories.md_bg_color = 121 / 255, 174 / 255, 141 / 255, 1
+                        food_categories.add_widget(Labels(text="Admin-phone:" + " " + str(x['Admin phone'])))
+                        food_categories.add_widget(Labels(text="Phone:" + " " + y))
+                        food_categories.add_widget(MDSeparator(height="5dp"))
+                        food_categories.add_widget(Labels(text="Amount:" + " " + " " + str(x['amount'])))
+                        food_categories.add_widget(Labels(text="Location:" + " " + " " + str(x['location'])))
+                        food_categories.add_widget(Labels(text="Product-Name:" + " " + " " + str(x['product name'])))
+                        food_categories.add_widget(Labels(text="Quantity:" + " " + " " + str(x['quantity'])))
+                        food_categories.add_widget(Labels(text="Time-Ordered:" + " " + " " + str(x['time'])))
+                        food_categories.add_widget(del_btn)
+                        food.add_widget(food_categories)
+                    self.order_number = str(count)
+
+            else:
+                pass
+        except:
+            toast("no internet")
+            self.spin_active = False
+
+    def add_order_admin(self):
+        try:
+            if self.food_count == 0:
+                self.food_count = self.food_count + 1
+                food = self.root.ids.food_cat
+                import firebase_admin
+                firebase_admin._apps.clear()
+                from firebase_admin import credentials, initialize_app, db
+                if not firebase_admin._apps:
+                    cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
+                    initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
+
+                    if self.admin_phone != "0788204327":
+                        store = db.reference("Yummy").child("Admin").child(self.admin_phone).child("Orders")
+                        stores = store.get()
+
+                        count = 0
+                        for y, x in stores.items():
+                            food_categories = category()
+                            del_btn = MDIconButton(icon="delete", on_release=self.remove_widgets,
+                                                   pos_hint={"center_x": .9, "center_y": .3}, theme_text_color="Custom",
+                                                   text_color={60 / 255, 66 / 255, 75 / 255}, user_font_size="26sp")
+                            count += 1
+                            # food_categories.md_bg_color = 245 / 255, 0 / 255, 72 / 255, 1
+                            food_categories.id = y
+                            del_btn.id = y
+                            food_categories.md_bg_color = 121 / 255, 174 / 255, 141 / 255, 1
+                            food_categories.add_widget(Labels(text="Admin-phone:" + " " + str(x['Admin phone'])))
+                            food_categories.add_widget(Labels(text="Phone:" + " " + y))
+                            food_categories.add_widget(MDSeparator(height="5dp"))
+                            food_categories.add_widget(Labels(text="Amount:" + " " + " " + str(x['amount'])))
+                            food_categories.add_widget(Labels(text="Location:" + " " + " " + str(x['location'])))
+                            food_categories.add_widget(
+                                Labels(text="Product-Name:" + " " + " " + str(x['product name'])))
+                            food_categories.add_widget(Labels(text="Quantity:" + " " + " " + str(x['quantity'])))
+                            food_categories.add_widget(Labels(text="Time-Ordered:" + " " + " " + str(x['time'])))
+                            food_categories.add_widget(del_btn)
+                            food.add_widget(food_categories)
+                        self.order_number = str(count)
+                    else:
+                        self.add_order()
 
             else:
                 pass
@@ -568,6 +608,7 @@ class MainApp(MDApp):
                             other_shops.add_widget(Shop_image(source=self.admin_product_url))
                             other_shops.id = y
                             shop.add_widget(other_shops)
+                            self.spin_active = False
             except:
                 toast("no internet!")
                 self.spin_active = False
@@ -582,40 +623,55 @@ class MainApp(MDApp):
         sm = self.root
         sm.current = "selling"
 
+    def summon(self):
+        sm = self.root
+        sm.current = "other_shops"
+        if self.other_shops == 0:
+            self.spin_active = True
+
     def front_shop(self):
         if True:
             try:
-                import firebase_admin
-                firebase_admin._apps.clear()
-                from firebase_admin import credentials, initialize_app, db
-                if not firebase_admin._apps:
-                    shop = self.root.ids.front_shop
-                    cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
-                    initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
-                    store = db.reference("Yummy").child("Products_admin")
-                    stores = store.get()
-                    self.front_products = stores
-                    for y, x in stores.items():
-                        self.admin_product_name = x["product_name"]
-                        self.admin_phone = x["admin_phone"]
-                        self.admin_product_url = x["image_url"]
-                        self.admin_product_price = x["product_price"]
+                if self.front_shop_count == 0:
+                    self.front_shop_count = self.front_shop_count + 1
+                    import firebase_admin
+                    firebase_admin._apps.clear()
+                    from firebase_admin import credentials, initialize_app, db
+                    if not firebase_admin._apps:
+                        shop = self.root.ids.front_shop
+                        cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
+                        initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
+                        store = db.reference("Yummy").child("Products_admin")
+                        stores = store.get()
+                        self.front_products = stores
+                        for y, x in stores.items():
+                            self.admin_product_name = x["product_name"]
+                            self.admin_phone = x["admin_phone"]
+                            self.admin_product_url = x["image_url"]
+                            self.admin_product_price = x["product_price"]
 
-                        front_shops = Front_shop(on_release=self.selling_front)
-                        layout = FloatLayout()
-                        layout.add_widget(Labels(text=self.admin_product_name,
-                                                 pos_hint={"center_x": .5, "center_y": .2},
-                                                 halign="center"))
-                        layout.add_widget(Cool(source=self.admin_product_url))
-                        front_shops.add_widget(layout)
-                        front_shops.id = y
-                        shop.add_widget(front_shops)
-                        self.spin_active = False
-                else:
-                    print("fuck!")
+                            front_shops = Front_shop(on_release=self.selling_front)
+                            layout = FloatLayout()
+                            layout.add_widget(Labels(text=self.admin_product_name,
+                                                     pos_hint={"center_x": .5, "center_y": .2},
+                                                     halign="center"))
+                            layout.add_widget(Cool(source=self.admin_product_url))
+                            front_shops.add_widget(layout)
+                            front_shops.id = y
+                            shop.add_widget(front_shops)
+                            time.sleep(2)
+                            self.spin_active = False
+                            self.loading = ""
+                    else:
+                        print("fuck!")
 
             except:
                 toast("no internet!")
+                button = MDTextButton(text="Retry", pos_hint={"center_x": .5, "center_y": .5}, on_release=lambda x: self.refresh_front())
+                button.id = "you"
+                button.custom_color = 40/255, 123/255, 222/255, 1
+                shop = self.root.ids.front_shop
+                shop.add_widget(button)
                 self.spin_active = False
 
     def selling_front(self, instance):
@@ -646,7 +702,31 @@ class MainApp(MDApp):
         for i in identity:
             self.remove_wide(i)
 
-        self.add_order()
+        if self.admin_phone == "0788204327":
+            self.add_order()
+        else:
+            self.add_order_admin()
+
+    def refresh_front(self):
+        parent = self.root.ids.front_shop
+        all_childs = parent.children
+        identity = []
+        self.front_shop_count = 0
+        for child in all_childs:
+            identity.append(child.id)
+
+        for i in identity:
+            print(i)
+            self.remove_wide_front(i)
+
+        self.spin_active = True
+        self.order_spinner2()
+
+    def remove_wide_front(self, name):
+        parent = self.root.ids.front_shop
+        for child in parent.children:
+            if name == child.id:
+                parent.remove_widget(child)
 
     def remove_wide(self, name):
         parent = self.root.ids.food_cat
@@ -663,7 +743,17 @@ class MainApp(MDApp):
                 self.del_entity(child.id)
 
     def del_entity(self, name):
-        db.reference("Yummy").child("Orders").child(name).delete()
+        import firebase_admin
+        firebase_admin._apps.clear()
+        from firebase_admin import credentials, initialize_app, db
+        if not firebase_admin._apps:
+            cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
+            initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
+
+            if self.admin_phone == "0788204327":
+                db.reference("Yummy").child("Orders").child(name).delete()
+            else:
+                db.reference("Yummy").child("Admin").child(self.admin_phone).child("Orders").child(name).delete()
 
     def validate_user(self, phone, password):
         if phone == "" and phone.Isdigit():
@@ -685,9 +775,8 @@ class MainApp(MDApp):
             self.admin_name = DB.name_admin
             self.remember_me_admin(phone, password, self.admin_name)
             if not self.admin_true:
-                sm.FadeTransition(duration=.2)
                 sm.current = "admin_main"
-                self.listen_db()
+                self.listen_db(phone)
 
         else:
             if self.admin_true:
@@ -748,12 +837,18 @@ class MainApp(MDApp):
 
         self.actively_reg()
 
-    def listen_db(self):
+    def listen_db(self, phone):
         try:
+            import firebase_admin
+            firebase_admin._apps.clear()
+            from firebase_admin import credentials, initialize_app, db
+            id = datetime.datetime.now()
+            cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
+            initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'}, name=str(id))
             print("i am listening......")
-            my_stream = db.reference("Yummy").child("Orders").listen(self.success)
+            my_stream = db.reference("Yummy").child("Admin").child(phone).child("Orders").listen(self.success)
         except:
-            pass
+            print("poor you")
 
     def Permission(self, android=None):
         if self.counter_image <= 0:

@@ -121,41 +121,36 @@ class Upload_Data:
         # from connection_status import connect
         self.get_order("admin", admin_phone)
         if True:
-            from test import number_app
+            import firebase_admin
+            firebase_admin._apps.clear()
             from firebase_admin import credentials, initialize_app, db
-            cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
-            if number_app.time == 0:
-                default_app = initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'},
-                                             name="default" + str(self.number))
-                print(default_app.name)
-                number_app.time += 1
-            else:
-                default_app = initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'},
-                                             name="default" + str(number_app.time))
-                print(default_app.name)
-                number_app.time += 1
-            self.current_time = str(datetime.datetime.now())
-            self.date, self.time = self.current_time.strip().split()
-            ref = db.reference('Yummy').child("Admin").child(admin_phone).child("Orders").child(phone)
-            ref.set({
-                "Phone number": phone,
-                "location": location,
-                "quantity": quantity,
-                "amount": amount,
-                "product name": product_name,
-                "time": self.time,
-                "date": self.date
-            })
-            ref = db.reference('Yummy').child("Admin").child(admin_phone).child("stat").child(self.day)
-            ref.set({
-                "week_day": self.week_day,
-                "orders": self.orders
-            })
-            ref = db.reference('Yummy').child("stat").child(self.day)
-            ref.set({
-                "week_day": self.week_day,
-                "orders": self.orders
-            })
+            if not firebase_admin._apps:
+                cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
+                initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
+
+                self.current_time = str(datetime.datetime.now())
+                self.date, self.time = self.current_time.strip().split()
+                ref = db.reference('Yummy').child("Admin").child(admin_phone).child("Orders").child(phone)
+
+                ref.set({
+                    "Phone number": phone,
+                    "location": location,
+                    "quantity": quantity,
+                    "amount": amount,
+                    "product name": product_name,
+                    "time": self.time,
+                    "date": self.date
+                })
+                ref = db.reference('Yummy').child("Admin").child(admin_phone).child("stat").child(self.day)
+                ref.set({
+                    "week_day": self.week_day,
+                    "orders": self.orders
+                })
+                ref = db.reference('Yummy').child("stat").child(self.day)
+                ref.set({
+                    "week_day": self.week_day,
+                    "orders": self.orders
+                })
 
     def upload_product_image(self, cate, path, phone, phone_other, name, price, product_name, password, id):
         print("START.....")
@@ -252,36 +247,30 @@ class Upload_Data:
     def Signing_in_admin(self, phone, password):
         # from connection_status import connect
         if True:
-            from test import number_app
+            import firebase_admin
+            firebase_admin._apps.clear()
             from firebase_admin import credentials, initialize_app, db
-            cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
-            if number_app.time == 0:
-                default_app = initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'},
-                                             name="default" + str(number_app.time))
-                print(default_app.name)
-                number_app.time += 1
-            else:
-                default_app = initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'},
-                                             name="default" + str(number_app.time))
-                print(default_app.name)
-                number_app.time += 1
-            admins = db.reference("Yummy").child("Admin")
-            admin = admins.get()
-            if phone in admin.keys():
-                print("ok")
-                password_collector = db.reference("Yummy").child("Admin").child(phone).child("password")
-                if password == password_collector.get():
-                    print(password)
-                    # take name
-                    name_collector = db.reference("Yummy").child("Admin").child(phone).child("name")
-                    Upload_Data.name_admin = name_collector.get()
+            if not firebase_admin._apps:
+                cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
+                initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
 
-                    return True
+                admins = db.reference("Yummy").child("Admin")
+                admin = admins.get()
+                if phone in admin.keys():
+                    print("ok")
+                    password_collector = db.reference("Yummy").child("Admin").child(phone).child("customer_password")
+                    if password == password_collector.get():
+                        print(password)
+                        # take name
+                        name_collector = db.reference("Yummy").child("Admin").child(phone).child("customer_name")
+                        Upload_Data.name_admin = name_collector.get()
+
+                        return True
+                    else:
+                        return False
                 else:
+                    print("not ok")
                     return False
-            else:
-                print("not ok")
-                return False
 
 
 # Upload_Data.upload_product_image(Upload_Data(), "admin", "juice.png", "0788204327", "machungwa", "120", "nyanya", "juice.png", "906070", "090989790606")

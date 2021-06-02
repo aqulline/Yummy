@@ -2,10 +2,18 @@
 ScreenManager:
     id:manager
     transition:sm.FadeTransition(duration=.2)
+
+    MDScreen:
+        name:"fun"
+        FitImage:
+            source:"bgimages/icons/plain.jpg"
+
     MDScreen:
         id: test
         name:"one"
-        #md_bg_color:60/255, 66/255, 75/255, 1
+        on_enter:
+            app.order_spinner2()
+            app.keyboard_hooker()
         FitImage:
             source:"bgimages/Home.jpg"
         MDSpinner:
@@ -13,14 +21,29 @@ ScreenManager:
             size: dp(46), dp(46)
             pos_hint: {'center_x': .5, 'center_y': .5}
             active: app.spin_active
+        MDLabel:
+            text:app.loading
+            halign:"center"
+            bold:True
+            theme_text_color: "Custom"
+            font_style:"Caption"
+            text_color:self.theme_cls.primary_color
+            size_hint:None, None
+            pos_hint: {'center_x': .5, 'center_y': .4}
         MDBoxLayout:
             orientation:"vertical"
             spacing:"10dp"
-            MDIconButton:
-                icon:"account"
-                pos_hint: {"center_x": .9, "center_y": .9}
+            MDLabel:
+                text:""
+                size_hint:None, None
+                size: app.size_x/4, "10dp"
+            MDTextButton:
+                text: "Refresh"
+                id:refresh_me
+                pos_hint: {"center_x": .9, "center_y": .8}
+                custom_color: 40/255, 123/255, 222/255, 1
                 on_release:
-                    app.admin_memory()
+                    app.refresh_front()
             MDCard:
                 md_bg_color: self.theme_cls.primary_color
                 size_hint: None, None
@@ -33,7 +56,7 @@ ScreenManager:
                 on_release:
                     manager.current = "other_shops"
                     app.count = app.count + 1
-                    app.other_shop()
+                    app.summon()
                 FloatLayout:
                     MDIconButton:
                         icon: "shopping"
@@ -46,15 +69,19 @@ ScreenManager:
             ScrollView:
                 id: scroll
                 MDGridLayout:
-                    cols: 3
+                    cols: 2
                     adaptive_height: True
                     padding: dp(10), dp(4)
                     spacing: dp(30)
                     id:front_shop
 
 
+
+
     MDScreen:
         name:"selling"
+        on_enter:
+            app.permision_req()
         FitImage:
             source:"bgimages/icons/plain.jpg"
         FloatLayout:
@@ -119,11 +146,13 @@ ScreenManager:
                 pos_hint: {'center_x': .5, 'center_y': .13}
                 on_release:
                     app.product_name = app.admin_product_name
-                    app.quantity = rim_mingap.text
+                    app.quantity = quantity.text
                     app.phone_number_dialog()
 
     MDScreen:
         name: "other_shops"
+        on_enter:
+            app.order_spinner3()
         FitImage:
             source:"bgimages/icons/plain.jpg"
         MDBoxLayout:
@@ -154,6 +183,12 @@ ScreenManager:
                     padding: dp(4), dp(4)
                     spacing: dp(10)
                     id:other_shop
+
+        MDSpinner:
+            size_hint: None, None
+            size: dp(46), dp(46)
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            active: app.spin_active
 
     MDScreen:
         name:"login"
@@ -219,6 +254,7 @@ ScreenManager:
                     orientation:"vertical"
                     spacing: "1dp"
                     id:order
+                    md_bg_color:245 / 255, 0 / 255, 72 / 255, 1
                     size_hint: None, None
                     border_radius: 20
                     radius: [15]
@@ -396,7 +432,7 @@ ScreenManager:
     border_radius: "12dp"
     size: app.size_x/3, "100dp"
     size_hint_x: .5
-
+    elevation: 1
 <Cool>:
     size_hint: None, None
     size: "50dp", "50dp"
