@@ -1,4 +1,5 @@
 import json
+import os
 
 
 class Retrieve:
@@ -10,11 +11,13 @@ class Retrieve:
         image_url:
         product_name:
         product_price:
+        product_description
     """
     product_name = ""
     customer_number = ""
     product_url = ""
     product_price = ""
+    product_description = ""
 
     def front_shop(self, stores):
         self.big = stores
@@ -25,11 +28,13 @@ class Retrieve:
             print("img_url:", x["image_url"])
             print("product_name:", x["product_name"])
             print("product_price:", x["product_price"])
+            print("product_description", x["product_description"])
             print(" ")
             Retrieve.product_name = x["product_name"]
             Retrieve.customer_number = x["admin_phone"]
             Retrieve.product_url = x["image_url"]
             Retrieve.product_price = x["product_price"]
+            Retrieve.product_description = x["product_description"]
             from helped import connection_status as CS
             path = CS.Cache_local.Cache(CS.Cache_local(), Retrieve.product_url, y)
             if not path:
@@ -38,7 +43,8 @@ class Retrieve:
                 cached = {y: {'admin_phone': self.customer_number,
                               'image_url': path,
                               'product_name': self.product_name,
-                              'product_price': self.product_price}}
+                              'product_price': self.product_price,
+                              'product_description': self.product_description}}
                 self.loca.append(cached)
         d = {k: v for x in self.loca for k, v in x.items()}
         print(d)
@@ -54,11 +60,13 @@ class Retrieve:
             print("img_url:", x["image_url"])
             print("product_name:", x["product_name"])
             print("product_price:", x["product_price"])
+            print("product_description", x["product_description"])
             print(" ")
             Retrieve.product_name = x["product_name"]
             Retrieve.customer_number = x["admin_phone"]
             Retrieve.product_url = x["image_url"]
             Retrieve.product_price = x["product_price"]
+            Retrieve.product_description = x["product_description"]
             from helped import connection_status as CS
             path = CS.Cache_local.Cache(CS.Cache_local(), Retrieve.product_url, y)
             if not path:
@@ -67,7 +75,8 @@ class Retrieve:
                 cached = {y: {'admin_phone': self.customer_number,
                               'image_url': path,
                               'product_name': self.product_name,
-                              'product_price': self.product_price}}
+                              'product_price': self.product_price,
+                              'product_description': self.product_description}}
                 self.loca.append(cached)
         d = {k: v for x in self.loca for k, v in x.items()}
         print(d)
@@ -77,16 +86,11 @@ class Retrieve:
     def read_lo(self, filename):
         with open(filename) as file:
             line = json.load(file)
-            print(line)
+            print(len(line))
             for y, x in line.items():
-                print("product id>>", y)
-                print("admin_phone:", x["admin_phone"])
-                print("img_url:", x["image_url"])
-                print("product_name:", x["product_name"])
-                print("product_price:", x["product_price"])
-                print(" ")
+                Retrieve.product_name = x["product_name"]
+                Retrieve.customer_number = x["admin_phone"]
+                Retrieve.product_url = x["image_url"]
+                Retrieve.product_price = x["product_price"]
 
         return line
-
-# Retrieve.other_shop(Retrieve())
-# Retrieve.read_lo(Retrieve())

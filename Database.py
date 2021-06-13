@@ -13,7 +13,7 @@ class Upload_Data:
     date, time = current_time.strip().split()
     week_day = ""
     day = ""
-    orders = "0"
+    orders = "1"
     url = ""
 
     def __init__(self):
@@ -39,7 +39,7 @@ class Upload_Data:
     def get_date(self):
         return str(datetime.datetime.now()).split(" ")[0]
 
-    def get_order(self, category, number):
+    def get_order(self, category, number, quantity):
         if True:
             from test import number_app
             from firebase_admin import credentials, initialize_app, db
@@ -58,19 +58,32 @@ class Upload_Data:
                     try:
                         ref = db.reference("Yummy").child("stat").child(self.day).child("orders")
                         self.orders = str(ref.get())
-                        self.orders = str(int(self.orders) + 1)
+                        self.orders = str(int(self.orders) + quantity)
+                        reff = db.reference("Yummy").child("stat").child(self.day)
+                        reff.set(
+                            {
+                                "week_day": self.week_day,
+                                "orders": self.orders
+                            }
+                        )
                     except:
                         ref = db.reference('Yummy').child("stat").child(self.day)
                         ref.set({
                             "week_day": self.week_day,
                             "orders": self.orders
                         })
-                        self.orders = "1"
+                        self.orders = quantity
                 else:
                     try:
-                        ref = db.reference("Yummy").child("Admin").child(number).child("stat").child(self.day).child("orders")
+                        ref = db.reference("Yummy").child("Admin").child(number).child("stat").child(self.day).child(
+                            "orders")
                         self.orders = str(ref.get())
                         self.orders = str(int(self.orders) + 1)
+                        reff = db.reference("Yummy").child("Admin").child(number).child("stat").child(self.day)
+                        reff.set({
+                            "week_day": self.week_day,
+                            "orders": self.orders
+                        })
                     except:
                         ref = db.reference('Yummy').child("stat").child(self.day)
                         ref.set({
@@ -81,7 +94,7 @@ class Upload_Data:
 
     def upload_data(self, admin_phone, phone, location, quantity, amount, product_name):
         # from connection_status import connect
-        self.get_order("customer", "0788204327")
+        self.get_order("customer", "0788204327", quantity)
         if True:
             from test import number_app
             from firebase_admin import credentials, initialize_app, db
@@ -100,7 +113,7 @@ class Upload_Data:
             self.date, self.time = self.current_time.strip().split()
             ref = db.reference('Yummy').child("Orders").child(phone)
             ref.set({
-                "Admin phone":admin_phone,
+                "Admin phone": admin_phone,
                 "Phone number": phone,
                 "location": location,
                 "quantity": quantity,
@@ -119,7 +132,7 @@ class Upload_Data:
 
     def upload_data_admin(self, admin_phone, phone, location, quantity, amount, product_name):
         # from connection_status import connect
-        self.get_order("admin", admin_phone)
+        self.get_order("admin", admin_phone, quantity)
         if True:
             import firebase_admin
             firebase_admin._apps.clear()
@@ -152,7 +165,8 @@ class Upload_Data:
                     "orders": self.orders
                 })
 
-    def upload_product_image(self, cate, path, phone, phone_other, name, price, product_name, password, id):
+    def upload_product_image(self, cate, path, phone, phone_other, name, price, product_name, password, id,
+                             description):
         print("START.....")
         if True:
             from firebase_admin import credentials, initialize_app, storage
@@ -165,16 +179,16 @@ class Upload_Data:
                 default = initialize_app(cred, {'storageBucket': 'farmzon-abdcb.appspot.com'})
                 print("WELDING..")
                 bucket = storage.bucket()
-                blob = bucket.blob("products" + "/" + cate + "/" + product_name+id)
+                blob = bucket.blob("products" + "/" + cate + "/" + product_name + id)
                 blob.upload_from_filename(path)
                 blob.make_public()
                 print("NICE...")
                 Upload_Data.url = blob.public_url
                 print("your file url", Upload_Data.url)
                 firebase_admin.delete_app(default)
-                self.register_admin(phone, phone_other, name, price, product_name, password, id, cate)
+                self.register_admin(phone, phone_other, name, price, product_name, password, id, cate, description)
 
-    def register_admin(self, phone, phone_other, name, price, product_name, password, product_id, cate):
+    def register_admin(self, phone, phone_other, name, price, product_name, password, product_id, cate, description):
         if True:
             import firebase_admin
             firebase_admin._apps.clear()
@@ -195,10 +209,12 @@ class Upload_Data:
                         }
                     )
                     print("Done.. one")
-                    ref_products = db.reference('Yummy').child("Customers").child(phone).child("products").child(product_id)
+                    ref_products = db.reference('Yummy').child("Customers").child(phone).child("products").child(
+                        product_id)
                     ref_products.set(
                         {
                             "product_name": product_name,
+                            "product_description": description,
                             "product_price": price,
                             "image_url": Upload_Data.url
                         }
@@ -208,6 +224,7 @@ class Upload_Data:
                         {
                             "product_name": product_name,
                             "product_price": price,
+                            "product_description": description,
                             "image_url": Upload_Data.url,
                             "admin_phone": phone
                         }
@@ -229,6 +246,7 @@ class Upload_Data:
                         {
                             "product_name": product_name,
                             "product_price": price,
+                            "product_description": description,
                             "image_url": Upload_Data.url
                         }
                     )
@@ -237,6 +255,7 @@ class Upload_Data:
                         {
                             "product_name": product_name,
                             "product_price": price,
+                            "product_description": description,
                             "image_url": Upload_Data.url,
                             "admin_phone": phone
                         }
@@ -258,20 +277,36 @@ class Upload_Data:
                 admin = admins.get()
                 if phone in admin.keys():
                     print("ok")
-                    password_collector = db.reference("Yummy").child("Admin").child(phone).child("customer_password")
-                    if password == password_collector.get():
-                        print(password)
-                        # take name
-                        name_collector = db.reference("Yummy").child("Admin").child(phone).child("customer_name")
-                        Upload_Data.name_admin = name_collector.get()
+                    if phone != "0788204327":
+                        password_collector = db.reference("Yummy").child("Admin").child(phone).child(
+                            "customer_password")
+                        if password == password_collector.get():
+                            print(password)
+                            # take name
+                            name_collector = db.reference("Yummy").child("Admin").child(phone).child("customer_name")
+                            Upload_Data.name_admin = name_collector.get()
 
-                        return True
+                            return True
+                        else:
+                            return False
                     else:
-                        return False
+                        password_collector = db.reference("Yummy").child("Admin").child(phone).child(
+                            "password")
+                        if password == password_collector.get():
+                            print(password)
+                            # take name
+                            name_collector = db.reference("Yummy").child("Admin").child(phone).child("name")
+                            Upload_Data.name_admin = name_collector.get()
+
+                            return True
+                        else:
+                            return False
                 else:
                     print("not ok")
                     return False
 
-
-# Upload_Data.upload_product_image(Upload_Data(), "admin", "juice.png", "0788204327", "machungwa", "120", "nyanya", "juice.png", "906070", "090989790606")
+# Upload_#Data.upload_product_image(Upload_Data(), "admin", "bgimages/icons/juice.png", "0767407060", "0767407060",
+#                          "aqulline",
+#                          "120", "juice", "906070", "10099840888080",
+#                          "hi ni juice nzuri ya machungwa ukinywa lazima unogewe na bei ni ya kawaida")
 # Upload_Data.register_admin(Upload_Data(), "0788204327", "machungwa", "120", "nyanya", "juice.png", "906070")

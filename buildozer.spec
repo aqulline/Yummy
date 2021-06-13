@@ -4,7 +4,7 @@
 title = Yummy
 
 # (str) Package name
-package.name = yummycom
+package.name = com.yummy.myapp
 
 # (str) Package domain (needed for android/ios packaging)
 package.domain = org.test
@@ -13,7 +13,7 @@ package.domain = org.test
 source.dir = .
 
 # (list) Source files to include (let empty to include all the files)
-source.include_exts = py,png,jpg,kv,atlas,json,jpeg,txt
+source.include_exts = py, png, jpg, kv, atlas, json, jpeg, txt, ttf, otf
 
 # (list) List of inclusions using pattern matching
 #source.include_patterns = assets/*,images/*.png
@@ -36,7 +36,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3, kivy==2.0.0rc4, kivymd==0.104.1, hostpython3, android, requests, openssl, urllib3, chardet, idna, jwt, cryptography, pyparsing, firebase_admin, PIL, google-auth, cachetools, pyasn1, pyasn1_modules, rsa, google-api-python-client, google-cloud-storage, google-cloud-firestore, google-api-core,  protobuf, cachecontrol, gcloud, google-cloud, httplib2, plyer==1.4.3, pyjnius, phonenumbers, jnius, requests-toolbelt, oauth2client, python_jwt, jwcrypto, pytz
+requirements = python3, kivy==2.0.0rc4, kivymd==0.104.1, kivmob, hostpython3, android, requests, openssl, urllib3, chardet, idna, jwt, cryptography, pyparsing, firebase_admin, PIL, google-auth, cachetools, pyasn1, pyasn1_modules, rsa, google-api-python-client, google-cloud-storage, google-cloud-firestore, google-api-core,  protobuf, cachecontrol, gcloud, google-cloud, httplib2, plyer==1.4.3, pyjnius, phonenumbers, jnius, requests-toolbelt, oauth2client, python_jwt, jwcrypto, pytz
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -88,7 +88,7 @@ android.presplash_color = #FF7032
 #android.presplash_lottie = "path/to/lottie/file.json"
 
 # (list) Permissions
-android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, ACCESS_MEDIA_LOCATION, READ_EXTERNAL_STORAGE,ACCESS_WIFI_STATE,READ_PHONE_STATE,ACCESS_NETWORK_STATE
+android.permissions = INTERNET, WAKE_LOCK, WRITE_EXTERNAL_STORAGE, ACCESS_MEDIA_LOCATION, READ_EXTERNAL_STORAGE,ACCESS_WIFI_STATE,READ_PHONE_STATE,ACCESS_NETWORK_STATE
 
 # (list) features (adds uses-feature -tags to manifest)
 #android.features = android.hardware.usb.host
@@ -160,7 +160,7 @@ android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, ACCESS_MEDIA_LOCATION, R
 #android.add_aars =
 
 # (list) Gradle dependencies to add
-#android.gradle_dependencies =
+android.gradle_dependencies = 'com.google.firebase:firebase-ads:10.2.0'
 
 # (list) add java compile options
 # this can for example be necessary when importing certain java libraries using the 'android.gradle_dependencies' option
@@ -204,11 +204,10 @@ android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, ACCESS_MEDIA_LOCATION, R
 
 # (bool) Indicate whether the screen should stay on
 # Don't forget to add the WAKE_LOCK permission if you set this to True
-#android.wakelock = False
+android.wakelock = True
 
 # (list) Android application meta-data to set (key=value format)
-#android.meta_data =
-
+android.meta_data = com.google.android.gms.ads.APPLICATION_ID={ca-app-pub-3940256099942544~3347511713}
 # (list) Android library project to add (will be added in the
 # project.properties automatically.)
 #android.library_references =
@@ -243,7 +242,7 @@ android.allow_backup = True
 #p4a.fork = kivy
 
 # (str) python-for-android branch to use, defaults to master
-#p4a.branch = master
+p4a.branch = master
 
 # (str) python-for-android git clone directory (if empty, it will be automatically cloned from github)
 #p4a.source_dir =

@@ -3,6 +3,15 @@ import requests
 import shutil
 
 
+class Network:
+    def internet(self):
+        try:
+            r = requests.get("https://farmzon-abdcb.firebaseio.com/", stream=True)
+            return True
+        except:
+            return False
+
+
 # Set up the image URL and filename
 class Cache_local:
     def Cache(self, url, id):
