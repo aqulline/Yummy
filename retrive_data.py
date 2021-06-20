@@ -50,6 +50,7 @@ class Retrieve:
         print(d)
         with open('helped/admin.json', 'w') as file:
             file.write(json.dumps(d))
+            file.close()
 
     def other_shop(self, stores):
         self.big = stores
@@ -82,6 +83,33 @@ class Retrieve:
         print(d)
         with open('helped/other.json', 'w') as file:
             file.write(json.dumps(d))
+            file.close()
+
+    def other_shop_comparison(self):
+        filename = "helped/other.json"
+        try:
+            file_size = os.path.getsize(filename)
+            if file_size != 0:
+                with open(filename) as file:
+                    line = json.load(file)
+                    local_len = len(line)
+                    import firebase_admin
+                    firebase_admin._apps.clear()
+                    from firebase_admin import credentials, initialize_app, db
+                    if not firebase_admin._apps:
+                        cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
+                        initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
+                        store = db.reference("Yummy").child("Products")
+                        stores = store.get()
+                        online_len = len(stores)
+                        print(line, stores)
+                    if line.keys() == stores.keys():
+                        print(local_len, online_len)
+                    else:
+                        print("false")
+
+        except:
+            return False
 
     def read_lo(self, filename):
         with open(filename) as file:
@@ -94,3 +122,6 @@ class Retrieve:
                 Retrieve.product_price = x["product_price"]
 
         return line
+
+
+# Retrieve.other_shop_comparison(Retrieve())

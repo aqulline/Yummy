@@ -52,6 +52,10 @@ class category(MDCard):
     pass
 
 
+class picture_dialog(AsyncImage):
+    pass
+
+
 class Front_shop(MDCard):
     pass
 
@@ -154,6 +158,8 @@ class MainApp(MDApp):
     dialog = None
     dialog_phone = None
     dialog_last = None
+    dialog_picture = None
+    closed = StringProperty('')
     setter = None
     counter_image = NumericProperty(0)
     spin_active = BooleanProperty(False)
@@ -238,6 +244,7 @@ class MainApp(MDApp):
             self.admin_name = Lines2[0]
             self.count += 1
             thread = threading.Thread(self.notifi(self.admin_phone))
+            thread.start()
             thread = threading.Thread(self.listen_db(self.admin_phone))
             thread.start()
         else:
@@ -306,6 +313,34 @@ class MainApp(MDApp):
 
         self.setter = identity
         self.setter.set_item(self.menu_text)
+
+    def change_picture(self):
+        if not self.dialog_picture:
+            self.dialog_picture = MDDialog(
+                title="Gallery",
+                type="custom",
+                background="bgimages/icons/yummy-plain.jpg",
+                auto_dismiss=False,
+                size_hint=[None, None],
+                size=[self.size_x / 1.15, 500],
+                content_cls=picture_dialog(),
+                buttons=[
+                    MDFlatButton(
+                        text="Cancel",
+                        text_color=self.theme_cls.primary_color,
+                        on_release=self.kill_picture
+                    ),
+                    MDRaisedButton(
+                        text="Next",
+                        on_release=lambda x: self.image_viewer(),
+                        theme_text_color="Custom",
+                        md_bg_color=[243 / 255, 189 / 255, 106 / 255, 1]
+                    ),
+
+                ],
+            )
+        self.dialog_picture.md_bg_color = 1, 1, 1, 1
+        self.dialog_picture.open()
 
     def show_alert_dialog(self):
         if not self.dialog:
@@ -379,6 +414,7 @@ class MainApp(MDApp):
                 return False
             else:
                 self.phone_number = phone
+                toast('please wait')
                 thread = threading.Thread(target=self.Business(self.product_name, self.quantity, self.phone_number))
                 thread.start()
                 self.kill_phone()
@@ -410,6 +446,9 @@ class MainApp(MDApp):
         self.ads.request_interstitial()
         self.dialog_phone.dismiss()
         self.ads.show_interstitial()
+
+    def kill_picture(self, *kwargs):
+        self.dialog_picture.dismiss()
 
     def kill_adver(self):
         self.dialog_last.dismiss()
@@ -501,12 +540,12 @@ class MainApp(MDApp):
             try:
                 toast("loading please wait...", 10)
                 self.loading = "Loading..."
-                # Clock.schedule_once(lambda x: self.front_shop(), 4)
-                thread = threading.Thread(target=self.front_shop())
-                thread.start()
+                Clock.schedule_once(lambda x: self.front_shop(), 4)
+                # thread = threading.Thread(target=self.front_shop())
+                # thread.start()
             except:
                 toast("no internet!")
-                self.loading = ""
+                self.loading = "REFRESH"
                 self.spin_active = False
 
     def order_spinner3(self):
@@ -515,7 +554,7 @@ class MainApp(MDApp):
             try:
                 toast("loading please wait...", 10)
                 Clock.schedule_once(lambda x: self.other_shop(), 4)
-                # thread = threading.Thread(target=self.other_shop)
+                # thread = threading.Thread(target=self.other_shop())
                 # thread.start()
             except:
                 toast("no internet!")
@@ -636,9 +675,38 @@ class MainApp(MDApp):
             self.spin_active = False
 
     all_products = {}
+    all_images = []
     front_products = {}
     front_shop_count = 0
     other_shops = 0
+    count_image = NumericProperty(0)
+
+    def image_stiller(self):
+        self.all_images.clear()
+        print(self.all_products)
+        import firebase_admin
+        firebase_admin._apps.clear()
+        from firebase_admin import credentials, initialize_app, db
+        cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
+        initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
+        store = db.reference("Yummy").child("Products")
+        stores = store.get()
+        for y, x in stores.items():
+            if y == self.admin_product_id:
+                for c, v in x['images'].items():
+                    self.all_images.append(v['image_url'])
+                    print("getting", self.all_images)
+
+    def image_viewer(self):
+        try:
+            if self.count_image < self.all_images.__len__():
+                self.admin_product_url = self.all_images[self.count_image]
+                self.count_image = self.count_image + 1
+            else:
+                self.admin_product_url = self.all_images[0]
+                self.count_image = 0
+        except:
+            toast('network error!')
 
     def other_shop(self):
         if True:
@@ -654,6 +722,7 @@ class MainApp(MDApp):
                         initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
                         store = db.reference("Yummy").child("Products")
                         stores = store.get()
+                        print("one st", stores)
                         from retrive_data import Retrieve as RE
                         RE.other_shop(RE(), stores)
                         self.all_products = stores
@@ -667,13 +736,20 @@ class MainApp(MDApp):
                             other_shops = Shops(on_release=self.selling_other)
                             other_shops.add_widget(Labels(text=self.admin_product_name))
                             other_shops.add_widget(Shop_image(source=self.admin_product_url))
-                            other_shops.add_widget(Labels(text=self.admin_product_price))
+                            other_shops.add_widget(Labels(text=self.admin_product_price + '/=Tsh'))
                             other_shops.id = y
                             shop.add_widget(other_shops)
                             self.spin_active = False
             except:
                 self.spin_active = False
+                button = MDTextButton(text="Retry", pos_hint={"center_x": .5, "center_y": .5},
+                                      on_release=lambda x: self.refresh_other())
+                button.id = "you"
+                button.custom_color = 40 / 255, 123 / 255, 222 / 255, 1
+                shop = self.root.ids.other_shop
+                shop.add_widget(button)
                 toast("no internet!")
+                self.loading = "Refresh"
 
     def other_shop_offline(self):
         filename = "helped/other.json"
@@ -694,7 +770,7 @@ class MainApp(MDApp):
                         other_shops = Shops(on_release=self.selling_other)
                         other_shops.add_widget(Labels(text=self.admin_product_name))
                         other_shops.add_widget(Shop_image(source=self.admin_product_url))
-                        other_shops.add_widget(Labels(text=self.admin_product_price))
+                        other_shops.add_widget(Labels(text=self.admin_product_price + '/=Tsh'))
                         other_shops.id = y
                         shop.add_widget(other_shops)
                         self.spin_active = False
@@ -720,7 +796,7 @@ class MainApp(MDApp):
                         stores = store.get()
                         online_len = len(stores)
                         print(local_len, online_len)
-                    if local_len == online_len:
+                    if line.keys() == stores.keys():
                         print(local_len, online_len)
                     else:
                         self.refresh_other()
@@ -753,7 +829,7 @@ class MainApp(MDApp):
                             other_shops = Shops(on_release=self.selling_other)
                             other_shops.add_widget(Labels(text=self.admin_product_name))
                             other_shops.add_widget(Shop_image(source=self.admin_product_url))
-                            other_shops.add_widget(Labels(text=self.admin_product_price + "/Tsh"))
+                            other_shops.add_widget(Labels(text=self.admin_product_price + "/=Tsh"))
                             other_shops.id = y
                             shop.add_widget(other_shops)
                             self.spin_active = False
@@ -773,6 +849,9 @@ class MainApp(MDApp):
         self.admin_product_name = self.all_products[product]["product_name"]
         self.admin_product_price = self.all_products[product]["product_price"]
         self.admin_product_description = self.all_products[product]["product_description"]
+        self.admin_product_id = product
+        thread = threading.Thread(target=self.image_stiller)
+        thread.start()
         sm = self.root
         sm.current = "selling_other"
 
@@ -819,7 +898,6 @@ class MainApp(MDApp):
                             front_shops.add_widget(layout)
                             front_shops.id = y
                             shop.add_widget(front_shops)
-                            time.sleep(2)
                             self.spin_active = False
                             self.loading = ""
                     else:
@@ -854,17 +932,10 @@ class MainApp(MDApp):
                         front_shops.add_widget(layout)
                         front_shops.id = y
                         shop.add_widget(front_shops)
-                        time.sleep(2)
                         self.spin_active = False
                         self.loading = ""
         except:
-            button = MDTextButton(text="Retry", pos_hint={"center_x": .5, "center_y": .5},
-                                  on_release=lambda x: self.refresh_front())
-            button.id = "you"
-            button.custom_color = 40 / 255, 123 / 255, 222 / 255, 1
-            shop = self.root.ids.front_shop
-            shop.add_widget(button)
-            self.loading = ""
+            self.loading = "Refresh"
             self.spin_active = False
 
     def front_shop_comparison(self):
@@ -884,7 +955,7 @@ class MainApp(MDApp):
                         store = db.reference("Yummy").child("Products_admin")
                         stores = store.get()
                         online_len = len(stores)
-                    if local_len == online_len:
+                    if line.keys() == stores.keys():
                         pass
                     else:
                         self.refresh_front()
@@ -982,6 +1053,7 @@ class MainApp(MDApp):
         self.order_spinner2()
 
     def refresh_other(self):
+        self.loading = ''
         parent = self.root.ids.other_shop
         all_childs = parent.children
         identity = []
@@ -1168,15 +1240,15 @@ class MainApp(MDApp):
         else:
             pass
 
-    ads = KivMob(TestIds.INTERSTITIAL)
+    ads = KivMob(interstitial)
 
     def adver(self):
+        self.ads.new_interstitial(self.interstitial)
         self.kill_adver()
         self.ads.show_interstitial()
 
     def build(self):
-
-        self.ads.new_interstitial(TestIds.INTERSTITIAL)
+        # self.ads.new_interstitial(TestIds.INTERSTITIAL)
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = "DeepOrange"
         self.theme_cls.accent = "Brown"

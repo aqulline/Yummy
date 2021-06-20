@@ -1,6 +1,5 @@
 import datetime
 import os
-import shutil
 
 
 def day_calc():
@@ -38,4 +37,3 @@ def viewfiles():
                 print('deleted', files)
 
 
-viewfiles()

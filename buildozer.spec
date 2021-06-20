@@ -4,10 +4,10 @@
 title = Yummy
 
 # (str) Package name
-package.name = com.yummy.myapp
+package.name = yummy
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = org.test
+package.domain = com.alpha
 
 # (str) Source code where the main.py live
 source.dir = .
@@ -28,7 +28,7 @@ source.include_exts = py, png, jpg, kv, atlas, json, jpeg, txt, ttf, otf
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.1
+version = 0.2
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]
@@ -46,7 +46,7 @@ requirements = python3, kivy==2.0.0rc4, kivymd==0.104.1, kivmob, hostpython3, an
 presplash.filename = bgimages/icons/Starting.jpg
 
 # (str) Icon of the application
-icon.filename = bgimages/icons/Icon.jpg
+icon.filename = bgimages/icons/Icon.png
 
 # (str) Supported orientation (one of landscape, sensorLandscape, portrait or all)
 orientation = portrait
@@ -94,7 +94,7 @@ android.permissions = INTERNET, WAKE_LOCK, WRITE_EXTERNAL_STORAGE, ACCESS_MEDIA_
 #android.features = android.hardware.usb.host
 
 # (int) Target Android API, should be as high as possible.
-#android.api = 27
+android.api = 29
 
 # (int) Minimum API your APK will support.
 #android.minapi = 21
@@ -207,7 +207,7 @@ android.gradle_dependencies = 'com.google.firebase:firebase-ads:10.2.0'
 android.wakelock = True
 
 # (list) Android application meta-data to set (key=value format)
-android.meta_data = com.google.android.gms.ads.APPLICATION_ID={ca-app-pub-3940256099942544~3347511713}
+android.meta_data = com.google.android.gms.ads.APPLICATION_ID={ca-app-pub-9270156272717443~8633598837}
 # (list) Android library project to add (will be added in the
 # project.properties automatically.)
 #android.library_references =
@@ -222,7 +222,7 @@ android.logcat_filters = *:S python:D
 #android.copy_libs = 1
 
 # (str) The Android arch to build for, choices: armeabi-v7a, arm64-v8a, x86, x86_64
-android.arch = armeabi-v7a
+android.arch = arm64-v8a
 
 # (int) overrides automatic versionCode computation (used in build.gradle)
 # this is not the same as app version and should only be edited if you know what you're doing
