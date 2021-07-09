@@ -477,7 +477,7 @@ class MainApp(MDApp):
             else:
                 self.spin_active = False
                 toast("Sorry try again!", 5)
-        else:
+        elif self.category_tp != 'customer':
             from helped import connection_status as CS
             if CS.Network.internet(CS.Network()):
                 self.spin_active = True
@@ -844,6 +844,7 @@ class MainApp(MDApp):
         print(instance.id)
         # self.count = self.count + 1
         product = instance.id
+        self.category_tp = 'customer'
         self.customer_phone = self.all_products[product]["admin_phone"]
         self.admin_product_url = self.all_products[product]["image_url"]
         self.admin_product_name = self.all_products[product]["product_name"]

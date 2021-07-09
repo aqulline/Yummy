@@ -73,11 +73,11 @@ class Upload_Data:
                             "week_day": self.week_day,
                             "orders": self.orders
                         })
-                        if self.orders is not None:
-                            self.orders = str(int(quantity) + int(self.orders))
-                        else:
+                        if self.orders == 'None':
                             self.orders = quantity
-                else:
+                        else:
+                            self.orders = str(int(quantity) + int(self.orders))
+                elif category == 'admin':
                     try:
                         ref = db.reference("Yummy").child("Admin").child(number).child("stat").child(self.day).child(
                             "orders")
@@ -94,10 +94,10 @@ class Upload_Data:
                             "week_day": self.week_day,
                             "orders": self.orders
                         })
-                        if self.orders is not None:
-                            self.orders = str(int(quantity) + int(self.orders))
-                        else:
+                        if self.orders == 'None':
                             self.orders = quantity
+                        else:
+                            self.orders = str(int(quantity) + int(self.orders))
 
     def upload_data(self, admin_phone, phone, location, quantity, amount, product_name):
         # from connection_status import connect
@@ -152,7 +152,6 @@ class Upload_Data:
                 self.date, self.time = self.current_time.strip().split()
                 if admin_phone != '0788204327':
                     ref = db.reference('Yummy').child("Admin").child(admin_phone).child("Orders").child(phone)
-
                     ref.set({
                         "Phone number": phone,
                         "location": location,
@@ -172,7 +171,6 @@ class Upload_Data:
                         "week_day": self.week_day,
                         "orders": self.orders
                     })
-
                 else:
                     self.upload_data(admin_phone, phone, location, quantity, amount, product_name)
 
@@ -338,11 +336,11 @@ class Upload_Data:
         return self.admin_product_id
 
 
-# #
-# image_path = ['/home/alpha9060/Small size/cloksC.jpg']
+image_path = ['/home/alpha9060/Vineti/perfume/perfume-frnt.jpg', '/home/alpha9060/Vineti/perfume/perfume-1.jpg', '/home/alpha9060/Vineti/perfume/perfume-2.jpg', '/home/alpha9060/Vineti/perfume/perfume-3.jpg', '/home/alpha9060/Vineti/perfume/perfume-4.jpg', '/home/alpha9060/Vineti/perfume/perfume-5.jpg', '/home/alpha9060/Vineti/perfume/perfume-7.jpg', '/home/alpha9060/Vineti/perfume/perfume-9.jpg', '/home/alpha9060/Vineti/perfume/perfume-10.jpg']
 #
-# Upload_Data.upload_product_image(Upload_Data(), "admin", image_path, "0623136132", "0744040406",
-#                                  "user",
-#                                  "5000", "Lady Bonnets", "1010", Upload_Data.id_generator(Upload_Data()),
-#                                  "Bonet nzito zenye mpira mbele zenye uimara wakudumu na rangi zote zipo")
+Upload_Data.upload_product_image(Upload_Data(), "customer", image_path, "0687863886", "0734794026",
+                                 "Zawadi kamote",
+                                 "10000", "Perfumes", "1010", Upload_Data.id_generator(Upload_Data()),
+                                 "Black opium ml50, blue princess ml100, locasit ml100, boss ml100, bei @10k~12/=")
+
 # Upload_Data.register_admin(Upload_Data(), "0788204327", "machungwa", "120", "nyanya", "juice.png", "906070")
