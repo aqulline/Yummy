@@ -336,11 +336,11 @@ class Upload_Data:
         return self.admin_product_id
 
 
-image_path = ['/home/alpha9060/Vineti/perfume/perfume-frnt.jpg', '/home/alpha9060/Vineti/perfume/perfume-1.jpg', '/home/alpha9060/Vineti/perfume/perfume-2.jpg', '/home/alpha9060/Vineti/perfume/perfume-3.jpg', '/home/alpha9060/Vineti/perfume/perfume-4.jpg', '/home/alpha9060/Vineti/perfume/perfume-5.jpg', '/home/alpha9060/Vineti/perfume/perfume-7.jpg', '/home/alpha9060/Vineti/perfume/perfume-9.jpg', '/home/alpha9060/Vineti/perfume/perfume-10.jpg']
+# image_path = ['/home/alpha9060/Vineti/perfume/perfume-frnt.jpg', '/home/alpha9060/Vineti/perfume/perfume-1.jpg', '/home/alpha9060/Vineti/perfume/perfume-2.jpg', '/home/alpha9060/Vineti/perfume/perfume-3.jpg', '/home/alpha9060/Vineti/perfume/perfume-4.jpg', '/home/alpha9060/Vineti/perfume/perfume-5.jpg', '/home/alpha9060/Vineti/perfume/perfume-7.jpg', '/home/alpha9060/Vineti/perfume/perfume-9.jpg', '/home/alpha9060/Vineti/perfume/perfume-10.jpg']
+# #
+# Upload_Data.upload_product_image(Upload_Data(), "customer", image_path, "0687863886", "0734794026",
+#                                  "Zawadi kamote",
+#                                  "10000", "Perfumes", "1010", Upload_Data.id_generator(Upload_Data()),
+#                                  "Black opium ml50, blue princess ml100, locasit ml100, boss ml100, bei @10k~12/=")
 #
-Upload_Data.upload_product_image(Upload_Data(), "customer", image_path, "0687863886", "0734794026",
-                                 "Zawadi kamote",
-                                 "10000", "Perfumes", "1010", Upload_Data.id_generator(Upload_Data()),
-                                 "Black opium ml50, blue princess ml100, locasit ml100, boss ml100, bei @10k~12/=")
-
 # Upload_Data.register_admin(Upload_Data(), "0788204327", "machungwa", "120", "nyanya", "juice.png", "906070")

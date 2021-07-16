@@ -1,12 +1,24 @@
+"""
+
+    AUTHOR OF THIS PROJECT: AQULLINE V MBUYA
+    EMAIL: AQEGLIPAMBUYA@GMAIL.COM
+    PHONE: 0786857974
+            ABOUT{
+            THIS IS AN E-COMMERCE APP FOR NIT(NATIONAL INSTITUTE OF TRANSPORT) STUDENTS
+            TO BE ABLE TO SELL AND BUY PRODUCTS OF THEIR FELLOW STUDENTS AROUND THE CAMPUS}
+    TECHNOLOGY USED:
+        *PYTHON == 3.9
+        *KIVY == 1.11.1
+        *BEEM API (LATEST)
+"""
+
 import datetime
 import json
 import os
 import re
 import threading
-import time
-
 import phonenumbers
-from kivmob import KivMob, TestIds
+from kivmob import KivMob
 from kivy.base import EventLoop
 from kivy.clock import Clock, mainthread
 from kivy.core.window import Window
@@ -80,6 +92,10 @@ class phone_dialog(MDDialog):
     pass
 
 
+class phone_code(MDDialog):
+    pass
+
+
 class Shop_image(AsyncImage):
     pass
 
@@ -91,6 +107,8 @@ class Item(OneLineListItem):
 class last_dialog(MDBoxLayout):
     pass
 
+
+# CLASSES FOR ALLOWING NUMBERS ONLY TO BE INSERTED
 
 class NumberOnlyField(MDTextField):
     pat = re.compile('[^0-9]')
@@ -143,6 +161,8 @@ class number_of_app:
     times = 0
 
 
+# XXX-----T H E    M A I N   A P P----XXX
+
 class MainApp(MDApp):
     # APP
     storage_url = "https://farmzon-abdcb.appspot.com"
@@ -150,13 +170,17 @@ class MainApp(MDApp):
     data = {"uu": {"Joe Tilsed": "me"}}
     auth_key = "sBlt6fzvguYnrGl2FlXRK3k4vRxSfZJBV2P7yIRv"
     size_x = NumericProperty(0)
+    public_number = NumericProperty(0)
     size_y = NumericProperty(0)
     menu = ObjectProperty(None)
     count = NumericProperty(0)
+    user_pin = StringProperty('')
     loggin_count = NumericProperty(0)
     count_update = NumericProperty(0)
     dialog = None
     dialog_phone = None
+    dialog_v_phone = None
+    dialog_p_phone = None
     dialog_last = None
     dialog_picture = None
     closed = StringProperty('')
@@ -264,6 +288,8 @@ class MainApp(MDApp):
 
     def notifier(self):
         notification.notify(title="Welcome", message="you can also sell and buy!")
+
+    # APP FUNCTIONS
 
     def on_start(self):
         m = self.root
@@ -375,6 +401,40 @@ class MainApp(MDApp):
             )
         self.dialog_phone.open()
 
+    def phone_dialog(self):
+        if not self.dialog_p_phone:
+            self.dialog_p_phone = phone_dialog(
+                title="Enter Your phone number for verification",
+                auto_dismiss=False,
+                buttons=[
+                    MDFlatButton(
+                        text="Cancel", text_color=self.theme_cls.primary_color, on_release=self.kill_p_phone
+                    ),
+                    MDRaisedButton(
+                        text="Submit", text_color=self.theme_cls.primary_color,
+                        on_release=lambda x: self.phone_rep(self.phone_number)
+                    ),
+                ],
+            )
+        self.dialog_p_phone.open()
+
+    def phone_verfy_dialog(self):
+        if not self.dialog_v_phone:
+            self.dialog_v_phone = phone_code(
+                title="verification code sent to you",
+                auto_dismiss=False,
+                buttons=[
+                    MDFlatButton(
+                        text="Cancel", text_color=self.theme_cls.primary_color, on_release=self.kill_v_phone
+                    ),
+                    MDRaisedButton(
+                        text="Submit", text_color=self.theme_cls.primary_color,
+                        on_release=lambda x: self.verify(self.user_pin)
+                    ),
+                ],
+            )
+        self.dialog_v_phone.open()
+
     def last_step_dialog(self):
         if not self.dialog_last:
             self.dialog_last = MDDialog(
@@ -390,7 +450,7 @@ class MainApp(MDApp):
                     ),
                     MDRaisedButton(
                         text="Ok",
-                        on_release=lambda x: self.adver(),
+                        on_release=lambda x: self.phone_number_check(self.phone_number),
                         theme_text_color="Custom",
                         md_bg_color=[243 / 255, 189 / 255, 106 / 255, 1]
                     ),
@@ -413,11 +473,12 @@ class MainApp(MDApp):
                 toast("Please check your phone number!", 1)
                 return False
             else:
+                self.phone_repr(phone)
                 self.phone_number = phone
                 toast('please wait')
                 thread = threading.Thread(target=self.Business(self.product_name, self.quantity, self.phone_number))
                 thread.start()
-                self.kill_phone()
+                self.kill_adver()
                 return True
         else:
             toast("check your number")
@@ -435,9 +496,12 @@ class MainApp(MDApp):
                 toast("Please check your phone number!", 1)
                 return False
             else:
+                self.public_number = number
                 return True
         else:
             toast("enter phone number!")
+
+    # FOR CLOSING DIALOG'S
 
     def kill(self, *kwargs):
         self.dialog.dismiss()
@@ -447,14 +511,21 @@ class MainApp(MDApp):
         self.dialog_phone.dismiss()
         self.ads.show_interstitial()
 
+    def kill_p_phone(self, *kwargs):
+        self.dialog_p_phone.dismiss()
+
+    def kill_v_phone(self, *kwargs):
+        self.dialog_v_phone.dismiss()
+
     def kill_picture(self, *kwargs):
         self.dialog_picture.dismiss()
 
     def kill_adver(self):
         self.dialog_last.dismiss()
 
+    #   FOR POSTING ORDER
+
     def Business(self, product, quantity, phone):
-        self.last_step_dialog()
         print("location:", self.location, '\n'
                                           "Product name:", product, '\n'
                                                                     "quantity:", quantity, '\n'
@@ -473,6 +544,8 @@ class MainApp(MDApp):
                 thread.start()
                 thread.join()
                 toast("Ordered successfully!", 10)
+                print(self.public_number)
+                self.send_sms(self.phone_number, self.location)
                 self.spin_active = False
             else:
                 self.spin_active = False
@@ -489,6 +562,8 @@ class MainApp(MDApp):
                 thread.start()
                 thread.join()
                 toast("Ordered successfully!", 10)
+                print(self.public_number)
+                self.send_sms(self.phone_number, self.location)
                 self.spin_active = False
             else:
                 self.spin_active = False
@@ -533,6 +608,8 @@ class MainApp(MDApp):
         self.menu.open()
 
     food_count = 0
+
+    # SPINNER FUNCTION FOR CREATING SPINNER
 
     def order_spinner2(self):
         if self.front_shop_count == 0:
@@ -617,6 +694,8 @@ class MainApp(MDApp):
         except:
             toast("no internet")
             self.spin_active = False
+
+    # PRODUCT ADJUSTMENT FUNCTIONS
 
     def resize_bottom_tabs(self):
         # bottom_nav
@@ -708,6 +787,8 @@ class MainApp(MDApp):
         except:
             toast('network error!')
 
+    # OTHER SHOP FUNCTIONS MANIPULATORS
+
     def other_shop(self):
         if True:
             try:
@@ -736,7 +817,7 @@ class MainApp(MDApp):
                             other_shops = Shops(on_release=self.selling_other)
                             other_shops.add_widget(Labels(text=self.admin_product_name))
                             other_shops.add_widget(Shop_image(source=self.admin_product_url))
-                            other_shops.add_widget(Labels(text=self.admin_product_price + '/=Tsh'))
+                            other_shops.add_widget(Labels(text='{:,}'.format(int(self.admin_product_price)) + '/=Tsh'))
                             other_shops.id = y
                             shop.add_widget(other_shops)
                             self.spin_active = False
@@ -770,7 +851,7 @@ class MainApp(MDApp):
                         other_shops = Shops(on_release=self.selling_other)
                         other_shops.add_widget(Labels(text=self.admin_product_name))
                         other_shops.add_widget(Shop_image(source=self.admin_product_url))
-                        other_shops.add_widget(Labels(text=self.admin_product_price + '/=Tsh'))
+                        other_shops.add_widget(Labels(text='{:,}'.format(int(self.admin_product_price)) + '/=Tsh'))
                         other_shops.id = y
                         shop.add_widget(other_shops)
                         self.spin_active = False
@@ -829,7 +910,7 @@ class MainApp(MDApp):
                             other_shops = Shops(on_release=self.selling_other)
                             other_shops.add_widget(Labels(text=self.admin_product_name))
                             other_shops.add_widget(Shop_image(source=self.admin_product_url))
-                            other_shops.add_widget(Labels(text=self.admin_product_price + "/=Tsh"))
+                            other_shops.add_widget(Labels(text='{:,}'.format(int(self.admin_product_price)) + '/=Tsh'))
                             other_shops.id = y
                             shop.add_widget(other_shops)
                             self.spin_active = False
@@ -861,6 +942,8 @@ class MainApp(MDApp):
         sm.current = "other_shops"
         if self.other_shops == 0:
             self.spin_active = True
+
+    # FRONT SHOP FUNCTIONS MANIPULATORS
 
     def front_shop(self):
         if True:
@@ -1019,6 +1102,8 @@ class MainApp(MDApp):
 
     def success(self, *kwargs):
         self.refresh()
+
+    # MANIPULATION OF THE WIDGET `REFRESH, `DELETION, `CREATION
 
     def refresh(self):
         parent = self.root.ids.food_cat
@@ -1240,6 +1325,67 @@ class MainApp(MDApp):
                             img.add_widget(cat_class)
         else:
             pass
+
+    #   BEEM API functions and integration
+    #   IN BEEM folder /beem
+
+    def send_sms(self, phone, location):
+        from beem import sms as sm
+
+        sm.send_sms(phone, location)
+
+    def phone_verify(self, phone):
+        from beem import OTP as tp
+        toast('wait a moment', 5)
+        if tp.req.otp_req(tp.req(), phone):
+            self.phone_verfy_dialog()
+
+    def verify(self, pin):
+        from beem import OTP as tp
+        self.kill_p_phone()
+        if tp.req.verfy(tp.req(), pin):
+            with open("credential/phone.txt", "w") as ui:
+                ui.write(self.phone_number)
+                toast('VERIFIED')
+                self.kill_v_phone()
+                self.last_step_dialog()
+        else:
+            toast("Try again")
+
+    def phone_repr(self, phone):
+        # FOR CHANGING A NORMAL PHONE NUMBER TO BEEM REQUESTED PHONE NUMBER
+        new_number = ""
+        if phone != "":
+            for i in range(phone.__len__()):
+                if i == 0:
+                    pass
+                else:
+                    new_number = new_number + phone[i]
+            number = "255" + new_number
+            self.public_number = number
+
+    def phone_rep(self, phone):
+        # FOR CHANGING A NORMAL PHONE NUMBER TO BEEM REQUESTED PHONE NUMBER
+        new_number = ""
+        if phone != "":
+            for i in range(phone.__len__()):
+                if i == 0:
+                    pass
+                else:
+                    new_number = new_number + phone[i]
+            number = "255" + new_number
+            self.phone_verify(number)
+
+    def veryfied(self):
+        if os.stat("credential/phone.txt").st_size == 0:
+            self.phone_dialog()
+        else:
+            file1 = open('credential/phone.txt', 'r')
+            Lines = file1.readlines()
+            self.phone_number = Lines[0].strip()
+            self.last_step_dialog()
+
+    # XXX----END OF BEEM FUNCTIONS---XXX
 
     ads = KivMob(interstitial)
 

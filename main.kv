@@ -173,7 +173,7 @@ ScreenManager:
                 on_release:
                     app.product_name = app.admin_product_name
                     app.quantity = quantity.text
-                    app.phone_number_dialog()
+                    app.veryfied()
 
     MDScreen:
         name:"selling_other"
@@ -285,7 +285,7 @@ ScreenManager:
                 on_release:
                     app.product_name = app.admin_product_name
                     app.quantity = quantity_other.text
-                    app.phone_number_dialog()
+                    app.veryfied()
 
     MDScreen:
         name: "other_shops"
@@ -447,6 +447,17 @@ ScreenManager:
         text_color: 0, 0, 0, 0
         on_text:
             app.phone_number = phone.text
+
+<phone_code>
+    NumberOnlyField:
+        id:phone
+        hint_text:"Code:"
+        size_hint: .8, None
+        pos_hint_x: .2
+        color_mode:"accent"
+        text_color: 0, 0, 0, 0
+        on_text:
+            app.user_pin = phone.text
 
 <last_dialog>
     orientation:"vertical"
