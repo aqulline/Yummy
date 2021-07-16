@@ -49,5 +49,3 @@ def phone_repr(phone):
         public_number = number
         return public_number
 
-
-phone_repr('0786857974')
