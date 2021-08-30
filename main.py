@@ -1,5 +1,5 @@
 """
-
+    COMPANY: ALPHA-PENT
     AUTHOR OF THIS PROJECT: AQULLINE V MBUYA
     EMAIL: AQEGLIPAMBUYA@GMAIL.COM
     PHONE: 0786857974
@@ -9,7 +9,6 @@
     TECHNOLOGY USED:
         *PYTHON == 3.9
         *KIVY == 1.11.1
-        *BEEM API (LATEST)
 """
 
 import datetime
