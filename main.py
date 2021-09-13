@@ -9,6 +9,7 @@
     TECHNOLOGY USED:
         *PYTHON == 3.9
         *KIVY == 1.11.1
+        *KIVYMD == 0.104.1
 """
 
 import datetime
