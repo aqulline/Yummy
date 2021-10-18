@@ -11,7 +11,7 @@ idna
 jwt 
 cryptography 
 pyparsing
-firebase_admin 
+firebase-admin
 PIL 
 google-auth
 cachetools
